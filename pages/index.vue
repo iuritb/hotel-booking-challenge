@@ -10,6 +10,7 @@
       Faça login ou cadastre-se para aproveitar todas as nossas funcionalidades de reserva!
     </p>
 
+    <!-- Formulário de Pesquisa -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
       <h2 class="text-2xl font-semibold text-gray-900 mb-4">Buscar Hotéis</h2>
       <form @submit.prevent="searchHotels" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -66,34 +67,16 @@
       Nenhum hotel encontrado para sua pesquisa.
     </div>
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="hotel in hotels" :key="hotel.id" class="bg-white rounded-lg shadow-md overflow-hidden">
-        <NuxtLink :to="`/hotels/${hotel.id}`">
-          <img
-            :src="hotel.imageUrl"
-            :alt="hotel.name"
-            class="w-full h-48 object-cover"
-            @error="handleImageError" 
-          >
-          <div class="p-4">
-            <h3 class="font-bold text-xl mb-2 text-gray-800 hover:text-blue-600 transition-colors">{{ hotel.name }}</h3>
-            <p class="text-gray-600 text-sm mb-1">{{ hotel.location }}</p>
-            <div class="flex items-center text-sm text-gray-500 mb-2">
-              <span class="text-yellow-500 mr-1">⭐</span> {{ hotel.rating }} ({{ hotel.reviewsCount }} avaliações)
-            </div>
-            <p class="text-gray-700 text-lg font-semibold">
-              R$ {{ hotel.pricePerNight.toFixed(2) }} <span class="text-sm font-normal text-gray-500">/ noite</span>
-            </p>
-          </div>
-        </NuxtLink>
-      </div>
+      <!-- Usando o novo componente HotelCard para cada hotel -->
+      <HotelCard v-for="hotel in hotels" :key="hotel.id" :hotel="hotel" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '~/stores/auth';
-import type { Hotel } from '~/server/data/hotels';
+import type { Hotel } from '~/server/data/hotels'; // Importa a interface Hotel
 
 const authStore = useAuthStore();
 
@@ -126,12 +109,8 @@ onMounted(() => {
   searchCriteria.value.checkInDate = today.toISOString().split('T')[0];
   searchCriteria.value.checkOutDate = tomorrow.toISOString().split('T')[0];
 });
-
-const handleImageError = (event: Event) => {
-  (event.target as HTMLImageElement).src = 'https://via.placeholder.com/400x200?text=Imagem+Indisponivel';
-  (event.target as HTMLImageElement).onerror = null;
-};
 </script>
 
 <style scoped>
+/* Estilos específicos para a página de pesquisa */
 </style>
