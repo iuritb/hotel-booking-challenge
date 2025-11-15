@@ -15,10 +15,11 @@ useHead({
     { name: 'description', content: 'Desafio técnico de reserva de hotéis com Nuxt 3' }
   ],
 });
+
+defineNuxtRouteMiddleware('auth');
 </script>
 
 <style>
-
 html, body, #__nuxt {
   height: 100%;
   margin: 0;
