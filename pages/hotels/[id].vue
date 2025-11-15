@@ -1,156 +1,242 @@
 <template>
-  <div class="container mx-auto p-4 max-w-4xl">
-    <div v-if="pending" class="text-center text-xl text-gray-600">
-      Carregando detalhes do hotel...
-    </div>
-    <div v-else-if="error" class="text-center text-red-600 text-xl">
-      Erro ao carregar os detalhes do hotel: {{ error.message || 'Hotel não encontrado ou erro de conexão.' }}
-    </div>
-    <div v-else-if="hotel" class="bg-white rounded-lg shadow-xl overflow-hidden">
-      <!-- Imagem do Hotel -->
-      <img :src="hotel.imageUrl" :alt="hotel.name" class="w-full h-80 object-cover" @error="handleImageError">
-
-      <div class="p-6">
-        <!-- Título e Localização -->
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-2">{{ hotel.name }}</h1>
-        <p class="text-xl text-gray-600 mb-4">{{ hotel.location }}</p>
-
-        <!-- Rating e Avaliações -->
-        <div class="flex items-center text-lg text-gray-700 mb-4">
-          <span class="text-yellow-500 text-2xl mr-2">⭐</span>
-          <span class="font-bold">{{ hotel.rating }}</span> ({{ hotel.reviewsCount }} avaliações)
-          <span class="ml-4 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
-            {{ hotel.availableRooms }} Quartos Disponíveis
-          </span>
+  <div v-if="pending" class="min-h-screen flex items-center justify-center">
+    <p class="text-gray-600">Carregando detalhes do hotel...</p>
+  </div>
+  <div v-else-if="error" class="min-h-screen flex items-center justify-center">
+    <p class="text-red-500">Erro ao carregar os detalhes do hotel: {{ error.message }}</p>
+  </div>
+  <div v-else-if="hotel" class="container mx-auto p-4 md:p-8">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div class="relative h-64 md:h-96">
+        <img :src="hotel.imageUrl" :alt="hotel.name" class="w-full h-full object-cover"/>
+        <div class="absolute inset-0 bg-black bg-opacity-30 flex items-end p-4 md:p-6">
+          <h1 class="text-white text-3xl md:text-5xl font-bold">{{ hotel.name }}</h1>
         </div>
+      </div>
 
-        <!-- Descrição -->
-        <p class="text-gray-800 text-lg leading-relaxed mb-6">{{ hotel.description }}</p>
+      <div class="p-4 md:p-6 lg:flex lg:space-x-8">
+        <div class="lg:w-2/3">
+          <p class="text-gray-600 mb-4 text-lg">{{ hotel.location }}</p>
+          <div class="flex items-center text-yellow-500 mb-4">
+            <template v-for="n in 5" :key="n">
+              <Icon v-if="n <= Math.floor(hotel.rating)" name="ic:round-star"/>
+              <Icon v-else-if="n - 0.5 === hotel.rating" name="ic:round-star-half" class="h-5 w-5"/>
+              <Icon v-else name="ic:round-star-border" class="h-5 w-5"/>
+            </template>
+            <span class="ml-2 text-gray-700 text-sm">
+              {{ hotel.rating?.toFixed(1) || 'N/A' }} ({{ hotel.reviewsCount }} avaliações)
+            </span>
+          </div>
 
-        <!-- Comodidades -->
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-3">Comodidades</h2>
-          <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-gray-700">
-            <li v-for="amenity in hotel.amenities" :key="amenity" class="flex items-center">
-              <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-              {{ amenity }}
+          <h2 class="text-2xl font-semibold text-gray-800 mt-6 mb-3">Descrição</h2>
+          <p class="text-gray-700 leading-relaxed mb-6">{{ hotel.description }}</p>
+
+          <h2 class="text-2xl font-semibold text-gray-800 mt-6 mb-3">Comodidades</h2>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
+            <li v-for="amenity in hotel.amenities" :key="amenity" class="flex items-center text-gray-700">
+              <Icon name="ic:check" class="text-green-500 mr-2"/> {{ amenity }}
             </li>
           </ul>
+
+          <h2 class="text-2xl font-semibold text-gray-800 mt-6 mb-3">Disponibilidade e Preço</h2>
+          <p class="text-gray-700 mb-4">Quartos disponíveis: <span class="font-bold">{{ hotel.availableRooms }}</span></p>
+          <p class="text-3xl font-bold text-indigo-600 mb-6">R$ {{ hotel.pricePerNight?.toFixed(2) || '0.00' }} <span class="text-lg text-gray-500">/ noite</span></p>
         </div>
 
-        <!-- Preço por Noite -->
-        <div class="bg-blue-50 p-4 rounded-lg flex justify-between items-center mb-6">
-          <span class="text-gray-800 text-2xl font-semibold">
-            Preço: <span class="text-blue-600">R$ {{ hotel.pricePerNight.toFixed(2) }}</span> / noite
-          </span>
-          <BaseButton variant="primary" size="lg">Reservar Agora</BaseButton>
-        </div>
-
-        <!-- Formulário de Reserva Simplificado (Mock) -->
-        <div class="bg-gray-50 p-6 rounded-lg">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Fazer uma Reserva</h2>
-          <form @submit.prevent="handleBooking" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <BaseInput
-                id="check-in-date-booking"
-                v-model="bookingDetails.checkInDate"
+        <div class="lg:w-1/3 bg-gray-50 p-4 md:p-6 rounded-lg shadow-inner mt-8 lg:mt-0">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Faça sua Reserva</h2>
+          <div class="mb-4">
+            <BaseInput
+                id="checkInDate"
+                v-model="checkInDate"
                 label="Check-in"
                 type="date"
                 required
-              />
-            </div>
-            <div>
-              <BaseInput
-                id="check-out-date-booking"
-                v-model="bookingDetails.checkOutDate"
+                class="w-full"
+                :min="today"
+            />
+          </div>
+          <div class="mb-4">
+            <BaseInput
+                id="checkOutDate"
+                v-model="checkOutDate"
                 label="Check-out"
                 type="date"
                 required
-              />
-            </div>
-            <div>
-              <BaseInput
-                id="guests-booking"
-                v-model.number="bookingDetails.guests"
-                label="Hóspedes"
+                class="w-full"
+                :min="minCheckOutDate"
+            />
+          </div>
+          <div class="mb-6">
+            <BaseInput
+                id="guests"
+                v-model.number="guests"
+                label="Número de Hóspedes"
                 type="number"
                 min="1"
                 required
-              />
-            </div>
-            <div class="md:col-span-3 mt-4">
-              <BaseButton type="submit" variant="primary" class="w-full">
-                Confirmar Reserva
-              </BaseButton>
-            </div>
-          </form>
-          <p v-if="bookingMessage" :class="{ 'text-green-600': bookingSuccess, 'text-red-600': !bookingSuccess }" class="mt-4 text-center">
+                class="w-full"
+            />
+          </div>
+          <p v-if="bookingMessage" :class="bookingSuccess ? 'text-green-600' : 'text-red-600'" class="mb-4 text-center">
             {{ bookingMessage }}
           </p>
+          <BaseButton
+              v-if="authStore.isAuthenticated"
+              @click="handleBooking"
+              variant="primary"
+              class="w-full"
+              :disabled="isBooking || hotel.availableRooms === 0"
+          >
+            <span v-if="isBooking">Reservando...</span>
+            <span v-else-if="hotel.availableRooms === 0">Esgotado</span>
+            <span v-else>Reservar Agora</span>
+          </BaseButton>
+          <div v-else class="text-center text-gray-700">
+            <p class="mb-2">Você precisa estar logado para fazer uma reserva.</p>
+            <NuxtLink to="/login" class="text-indigo-600 hover:underline font-medium">
+              Fazer Login
+            </NuxtLink>
+            ou
+            <NuxtLink to="/register" class="text-indigo-600 hover:underline font-medium">
+              Registrar
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </div>
-    <div v-else class="text-center text-xl text-gray-600">
-      Hotel não encontrado. Verifique o ID.
-    </div>
+  </div>
+  <div v-else class="min-h-screen flex items-center justify-center">
+    <p class="text-gray-600">Hotel não encontrado.</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import type { Hotel } from '~/server/data/hotels'; 
+import { useAuthStore } from '~/stores/auth';
+import type { Hotel } from '~/types/hotel';
+import type { Booking } from '~/types/booking';
 
 const route = useRoute();
-const hotelId = route.params.id;
+const authStore = useAuthStore();
+const hotelId = route.params.id as string;
 
-const bookingDetails = ref({
-  checkInDate: '',
-  checkOutDate: '',
-  guests: 1,
-});
+const today = ref('');
+const checkInDate = ref('');
+const checkOutDate = ref('');
+const guests = ref(1);
 
+const isBooking = ref(false);
 const bookingMessage = ref('');
 const bookingSuccess = ref(false);
 
-const { data, pending, error } = await useFetch(`/api/hotels/${hotelId}`, {
-  transform: (response: any) => response.hotel as Hotel, 
+
+const minCheckOutDate = computed(() => {
+  if (checkInDate.value) {
+    const d = new Date(checkInDate.value);
+    d.setDate(d.getDate() + 1); 
+    return d.toISOString().split('T')[0];
+  }
+  return today.value; 
 });
 
-const hotel = computed<Hotel | null>(() => data.value || null);
+onMounted(() => {
+  const d = new Date();
+  today.value = d.toISOString().split('T')[0];
+  checkInDate.value = today.value;
 
-const handleImageError = (event: Event) => {
-  (event.target as HTMLImageElement).src = 'https://picsum.photos/800/600?grayscale&blur=2'; 
-  (event.target as HTMLImageElement).onerror = null;
-};
+  const nextDay = new Date(d);
+  nextDay.setDate(d.getDate() + 1);
+  checkOutDate.value = nextDay.toISOString().split('T')[0];
+});
 
-const handleBooking = () => {
-  if (!bookingDetails.value.checkInDate || !bookingDetails.value.checkOutDate || bookingDetails.value.guests < 1) {
-    bookingMessage.value = 'Por favor, preencha todos os campos de reserva.';
+watch(checkInDate, (newVal) => {
+  if (newVal && checkOutDate.value && new Date(newVal) >= new Date(checkOutDate.value)) {
+    const d = new Date(newVal);
+    d.setDate(d.getDate() + 1);
+    checkOutDate.value = d.toISOString().split('T')[0];
+  }
+});
+
+const { data: response, pending, error } = await useFetch<{ hotel: Hotel }>(`/api/hotels/${hotelId}`);
+
+const hotel = computed(() => response.value?.hotel);
+
+console.log('--- Debug Hotel Details ---');
+console.log('Hotel ID from route:', hotelId);
+console.log('Pending status:', pending.value);
+console.log('Error status:', error.value);
+if (response.value) { 
+  console.log('Fetched raw response object:', response.value);
+}
+if (hotel.value) { 
+  console.log('Computed hotel object:', hotel.value);
+  console.log('Hotel rating property:', hotel.value.rating);
+  console.log('Hotel pricePerNight property:', hotel.value.pricePerNight);
+  if (typeof hotel.value.rating !== 'number') {
+    console.error('ERRO DETECTADO: hotel.value.rating NÃO é um número!', hotel.value.rating);
+  }
+  if (typeof hotel.value.pricePerNight !== 'number') {
+    console.error('ERRO DETECTADO: hotel.value.pricePerNight NÃO é um número!', hotel.value.pricePerNight);
+  }
+} else {
+  console.log('Computed hotel object is NULL or UNDEFINED.');
+}
+console.log('--- End Debug Hotel Details ---');
+
+
+const handleBooking = async () => {
+  if (!authStore.isAuthenticated || !authStore.currentUser) {
+    bookingMessage.value = 'Você precisa estar logado para fazer uma reserva.';
     bookingSuccess.value = false;
     return;
   }
 
-  bookingSuccess.value = true;
-  bookingMessage.value = `Reserva para ${bookingDetails.value.guests} hóspedes de ${bookingDetails.value.checkInDate} a ${bookingDetails.value.checkOutDate} confirmada com sucesso para o hotel ${hotel.value?.name}!`;
+  if (!hotel.value) {
+    bookingMessage.value = 'Erro: Hotel não encontrado.';
+    bookingSuccess.value = false;
+    return;
+  }
 
-  setTimeout(() => {
-    bookingMessage.value = '';
-  }, 5000);
+  isBooking.value = true;
+  bookingMessage.value = '';
+
+  try {
+    const apiResponse = await $fetch('/api/bookings', { 
+      method: 'POST',
+      body: {
+        hotelId: hotel.value.id,
+        checkInDate: checkInDate.value,
+        checkOutDate: checkOutDate.value,
+        guests: guests.value,
+        userId: authStore.currentUser.id, 
+      },
+    });
+
+    const booked = apiResponse.booking as Booking;
+    authStore.addBooking(booked); 
+    bookingMessage.value = apiResponse.message || 'Reserva realizada com sucesso!';
+    bookingSuccess.value = true;
+
+    
+    if (hotel.value.availableRooms > 0) {
+      hotel.value.availableRooms--;
+    }
+
+  } catch (err: any) {
+    console.error('Erro ao fazer reserva:', err);
+    bookingMessage.value = err.data?.statusMessage || 'Erro ao realizar a reserva.';
+    bookingSuccess.value = false;
+  } finally {
+    isBooking.value = false;
+  }
 };
 
-onMounted(() => {
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  bookingDetails.value.checkInDate = today.toISOString().split('T')[0];
-  bookingDetails.value.checkOutDate = tomorrow.toISOString().split('T')[0];
-});
-
-useHead({
-  title: hotel.value ? `${hotel.value.name} - Detalhes do Hotel` : 'Detalhes do Hotel',
-});
+if (!hotel.value && !pending.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Hotel não encontrado', fatal: true });
+}
 </script>
 
 <style scoped>

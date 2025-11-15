@@ -9,12 +9,11 @@ export default defineEventHandler(async (event) => {
   const minPrice = query.minPrice ? parseFloat(query.minPrice as string) : undefined;
   const maxPrice = query.maxPrice ? parseFloat(query.maxPrice as string) : undefined;
   const minRating = query.minRating ? parseFloat(query.minRating as string) : undefined;
-  const sortBy = query.sortBy as 'pricePerNight' | 'rating' | undefined; // Propriedade para ordenar
-  const sortOrder = query.sortOrder as 'asc' | 'desc' | undefined; // Ordem (ascendente/descendente)
+  const sortBy = query.sortBy as 'pricePerNight' | 'rating' | undefined; 
+  const sortOrder = query.sortOrder as 'asc' | 'desc' | undefined; 
 
-  let filteredHotels: Hotel[] = [...mockHotels]; // Cópia para não modificar o array original
+  let filteredHotels: Hotel[] = [...mockHotels]; 
 
-  // 1. Filtragem
   if (location) {
     filteredHotels = filteredHotels.filter(hotel =>
       hotel.location.toLowerCase().includes(location.toLowerCase())
@@ -33,7 +32,6 @@ export default defineEventHandler(async (event) => {
     filteredHotels = filteredHotels.filter(hotel => hotel.rating >= minRating);
   }
 
-  // 2. Ordenação
   if (sortBy) {
     filteredHotels.sort((a, b) => {
       let valA: number;
@@ -46,17 +44,16 @@ export default defineEventHandler(async (event) => {
         valA = a.rating;
         valB = b.rating;
       } else {
-        return 0; // Não faz nada se sortBy for inválido
+        return 0; 
       }
 
       if (sortOrder === 'desc') {
-        return valB - valA; // Maior para menor
+        return valB - valA; 
       }
-      return valA - valB; // Menor para maior (padrão ou 'asc')
+      return valA - valB; 
     });
   }
 
-  // Em um cenário real, você adicionaria paginação, etc.
   return {
     hotels: filteredHotels,
     count: filteredHotels.length,

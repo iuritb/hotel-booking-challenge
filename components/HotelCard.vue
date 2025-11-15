@@ -25,20 +25,17 @@
 </template>
 
 <script setup lang="ts">
-import type { Hotel } from '~/server/data/hotels'; // Importa a interface Hotel
+import type { Hotel } from '~/types/hotel'; 
 
-// Define as props que este componente espera receber
 const props = defineProps<{
   hotel: Hotel;
 }>();
 
-// Função para lidar com erros de carregamento de imagem, usando o fallback
 const handleImageError = (event: Event) => {
-  (event.target as HTMLImageElement).src = 'https://picsum.photos/400/200?grayscale&blur=2'; // Fallback mais robusto
-  (event.target as HTMLImageElement).onerror = null; // Evita loop infinito
+  (event.target as HTMLImageElement).src = 'https://picsum.photos/400/200?grayscale&blur=2'; 
+  (event.target as HTMLImageElement).onerror = null; 
 };
 </script>
 
 <style scoped>
-/* Estilos específicos para o card do hotel, se necessário */
 </style>

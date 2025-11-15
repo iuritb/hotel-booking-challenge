@@ -1,75 +1,75 @@
 <template>
-  <div class="flex items-center justify-center min-h-[calc(100vh-160px)] py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-      <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Faça login na sua conta
-        </h2>
-      </div>
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="rounded-md shadow-sm -space-y-px">
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+      <h2 class="text-3xl font-extrabold text-center text-gray-900 mb-6">Fazer Login</h2>
+      <form @submit.prevent="handleLogin">
+        <div class="mb-4">
           <BaseInput
-            id="email-address"
-            v-model="credentials.email"
-            label="Endereço de E-mail"
+            id="email-login"
+            v-model="email"
+            label="Email"
             type="email"
             placeholder="seu@email.com"
             required
-            class="mb-4"
-            :error="authStore.error && authStore.error.includes('email') ? authStore.error : ''"
+            class="w-full"
           />
+        </div>
+        <div class="mb-6">
           <BaseInput
-            id="password"
-            v-model="credentials.password"
+            id="password-login"
+            v-model="password"
             label="Senha"
             type="password"
-            placeholder="********"
+            placeholder="Sua senha"
             required
-            class="mt-4"
-            :error="authStore.error && authStore.error.includes('credenciais') ? authStore.error : ''"
+            class="w-full"
           />
         </div>
-
-        <div v-if="authStore.error" class="text-red-600 text-sm text-center">
-          {{ authStore.error }}
-        </div>
-
-        <div>
-          <BaseButton type="submit" variant="primary" class="w-full" :disabled="authStore.loading">
-            <span v-if="authStore.loading">Entrando...</span>
-            <span v-else>Entrar</span>
-          </BaseButton>
-        </div>
+        <BaseButton type="submit" variant="primary" class="w-full" :disabled="isLoading">
+          <span v-if="isLoading">Entrando...</span>
+          <span v-else>Entrar</span>
+        </BaseButton>
+        <p v-if="errorMessage" class="text-red-600 text-sm text-center mt-4">{{ errorMessage }}</p>
+        <p class="text-center text-gray-600 text-sm mt-4">
+          Não tem uma conta?
+          <NuxtLink to="/register" class="text-blue-600 hover:underline">Registre-se aqui.</NuxtLink>
+        </p>
       </form>
-      <div class="text-sm text-center">
-        Não tem uma conta?
-        <NuxtLink to="/register" class="font-medium text-blue-600 hover:text-blue-500">
-          Cadastre-se
-        </NuxtLink>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useAuthStore } from '~/stores/auth'; 
-
-definePageMeta({
-  layout: 'default',
-});
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '~/stores/auth';
 
 const authStore = useAuthStore();
-const credentials = ref({
-  email: '',
-  password: '',
-});
-const router = useRouter(); 
+const router = useRouter();
+
+const email = ref('');
+const password = ref('');
+const isLoading = ref(false);
+const errorMessage = ref('');
 
 const handleLogin = async () => {
-  const success = await authStore.login(credentials.value);
-  if (success) {
-    router.push('/');
+  isLoading.value = true;
+  errorMessage.value = ''; 
+
+  try {
+    const result = await authStore.userLogin(email.value, password.value);
+
+    if (result.success) {
+      router.push('/'); 
+    } else {
+      errorMessage.value = result.message || 'Falha no login. Verifique suas credenciais.';
+      console.log('Login falhou. Mensagem de erro para exibir:', errorMessage.value); 
+    }
+  } catch (err: any) {
+    errorMessage.value = err.message || 'Ocorreu um erro inesperado durante o login.';
+    console.error('Erro de login:', err);
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
