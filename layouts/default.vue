@@ -8,7 +8,7 @@
         <div class="space-x-4">
           <template v-if="authStore.isAuthenticated">
             <span>Olá, {{ authStore.currentUser?.name || 'Usuário' }}!</span>
-            <BaseButton @click="authStore.logout()" variant="outline" class="bg-blue-500 hover:bg-blue-400 text-white border-white">Logout</BaseButton>
+            <BaseButton @click="authStore.logout()" variant="secondary" >Logout</BaseButton>
           </template>
           <template v-else>
             <NuxtLink to="/login" class="hover:text-blue-200 transition-colors">Login</NuxtLink>
