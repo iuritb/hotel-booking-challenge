@@ -239,5 +239,7 @@ if (!hotel.value && !pending.value) {
 }
 </script>
 
+
 <style scoped>
+/* Estilos específicos para a página de detalhes do hotel */
 </style>

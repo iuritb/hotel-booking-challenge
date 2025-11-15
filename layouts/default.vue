@@ -22,6 +22,9 @@
       <slot />
     </main>
 
+    <!-- O componente flutuante de comparação será renderizado aqui -->
+    <CompareFloatingButton />
+
     <footer class="bg-blue-800 text-white p-4 text-center shadow-inner">
       <div class="container mx-auto">
         &copy; {{ new Date().getFullYear() }} Hotel Booking Challenge. Todos os direitos reservados.
@@ -32,11 +35,14 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth';
+import { useCompareStore } from '~/stores/compare'; // Importa a store de comparação
 
 const authStore = useAuthStore();
+const compareStore = useCompareStore(); // Inicializa a store de comparação
 
 onMounted(() => {
   authStore.initializeAuth();
+  compareStore.loadComparisonFromLocalStorage(); // Carrega os dados da store de comparação
 });
 </script>
 
