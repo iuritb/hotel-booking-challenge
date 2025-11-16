@@ -38,7 +38,7 @@ jobs:
           # Puxa a configuração do projeto Vercel para o diretório local
           # O --token é necessário para autenticação, --yes para respostas automáticas
           # --environment=production indica para puxar as variáveis de ambiente de produção
-          vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }} --environment=production
+          # vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }} --environment=production
           
           # Constrói o projeto usando o Vercel CLI, que usa as configurações do vercel.json e .env.production
           # --prod garante que o build seja otimizado para produção
