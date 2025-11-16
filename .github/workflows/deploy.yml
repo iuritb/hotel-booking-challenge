@@ -35,7 +35,7 @@ jobs:
       #   run: yarn test # Ou `npm test`
 
       - name: Deploy to Vercel
-        uses: vercel/actions@v6 # Ação oficial da Vercel para deploy
+        uses: vercel/actions@v3 # Ação oficial da Vercel para deploy
         with:
           # Estas são as variáveis de ambiente que a ação da Vercel precisa
           # Elas são carregadas dos GitHub Secrets que você configurou no Passo 2
