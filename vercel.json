@@ -1,5 +1,11 @@
 {
   "build": {
     "outputDirectory": ".output"
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/server/index.mjs"
+    }
+  ]
 }
