@@ -40,7 +40,7 @@ jobs:
           {
             "extends": "./tsconfig.json",
             "compilerOptions": {
-              "moduleResolution": "bundler",
+              "moduleResolution": "node",
               "types": ["@nuxt/vue-app", "pinia"],
               "paths": {
                 "~/*": ["./*"],
@@ -113,7 +113,14 @@ jobs:
           echo "--- End of tsconfig file verification ---"
 
       - name: Build Nuxt Application
-        run: npx nuxt build
+        run: |
+           echo "--- IMMEDIATE PRE-BUILD CHECK ---"
+           echo "ls -l .nuxt/tsconfig.app.json"
+           ls -l .nuxt/tsconfig.app.json
+           echo "cat .nuxt/tsconfig.app.json"
+           cat .nuxt/tsconfig.app.json
+           echo "--- STARTING NUXT BUILD ---"
+           npx nuxt build
 
       - name: Deploy to Vercel using CLI
         run: |
