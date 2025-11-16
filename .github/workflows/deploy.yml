@@ -22,8 +22,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: yarn install --immutable
+      - name: Clean and Install dependencies
+        run: |
+          rm -rf node_modules .nuxt yarn.lock
+          yarn install
 
       - name: Prepare Nuxt (generate .nuxt files)
         run: NUXI_DEBUG=1 yarn nuxt prepare
