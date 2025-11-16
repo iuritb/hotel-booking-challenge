@@ -1,0 +1,53 @@
+# .github/workflows/deploy.yml
+
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main # Dispara o workflow quando há um push para a branch 'main'
+  pull_request:
+    branches:
+      - main # Opcional: roda o build em pull requests para 'main'
+  workflow_dispatch: # Permite disparar o workflow manualmente na UI do GitHub
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # O sistema operacional onde o job será executado
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4 # Clona seu repositório
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use a versão do Node.js que seu projeto Nuxt 3 utiliza
+
+      - name: Install dependencies
+        run: yarn install --immutable # Ou `npm ci` se você usa npm e tem package-lock.json
+
+      - name: Build Nuxt.js Application
+        run: yarn build # Ou `npm run build`
+
+      # Opcional: Executar testes (descomente quando os testes estiverem funcionando)
+      # - name: Run tests
+      #   run: yarn test # Ou `npm test`
+
+      - name: Deploy to Vercel
+        uses: vercel/actions@v1 # Ação oficial da Vercel para deploy
+        with:
+          # Estas são as variáveis de ambiente que a ação da Vercel precisa
+          # Elas são carregadas dos GitHub Secrets que você configurou no Passo 2
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          # Especifica que o deploy é do ambiente de produção
+          # Para deploys de PRs ou branches que não são a 'main', você pode usar --build-env e --prod=false
+          # O parâmetro 'prod' nesta ação da Vercel o torna um deploy de produção.
+          prod: true # Faz um deploy para o ambiente de produção na Vercel
+
+        # Opcional: Define variáveis de ambiente durante o deploy na Vercel
+        # env:
+        #   NUXT_PUBLIC_API_BASE: https://api.your-prod-domain.com
+        #   OUTRA_VARIAVEL: 'valor'
