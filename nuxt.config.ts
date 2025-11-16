@@ -10,7 +10,8 @@ export default defineNuxtConfig({
   ],
 
   nitro: {
-    preset: 'vercel', // ou 'vercel-edge' se quiser usar Vercel Edge Functions
+    preset: 'vercel',
+    compatibilityDate: '2025-11-16',
   },
 
   css: [
