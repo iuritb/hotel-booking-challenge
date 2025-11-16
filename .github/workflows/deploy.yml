@@ -33,10 +33,75 @@ jobs:
       - name: "Debug: List .nuxt directory contents"
         run: ls -R .nuxt || true
 
+      - name: Create Missing tsconfig files
+        run: |
+          # Create tsconfig.app.json for client-side build
+          cat << EOF > .nuxt/tsconfig.app.json
+          {
+            "extends": "./tsconfig.json",
+            "compilerOptions": {
+              "moduleResolution": "bundler",
+              "types": ["@nuxt/vue-app", "pinia"],
+              "paths": {
+                "~/*": ["./*"],
+                "@/*": ["./*"]
+              }
+            },
+            "include": [
+              "../**/*",
+              "../.nuxt/**/*"
+            ],
+            "exclude": [
+              "../node_modules",
+              "../dist",
+              "../.output"
+            ]
+          }
+          EOF
+
+          # Create tsconfig.shared.json for shared types/configs
+          cat << EOF > .nuxt/tsconfig.shared.json
+          {
+            "extends": "./tsconfig.json",
+            "compilerOptions": {
+              // Add shared compiler options here if needed
+            }
+          }
+          EOF
+
+          # Create tsconfig.node.json for Node.js runtime/build context
+          cat << EOF > .nuxt/tsconfig.node.json
+          {
+            "extends": "./tsconfig.json",
+            "compilerOptions": {
+              "target": "esnext",
+              "module": "esnext",
+              "moduleResolution": "node",
+              "strict": true,
+              "lib": ["esnext"],
+              "baseUrl": ".",
+              "paths": {
+                "~/*": ["./*"],
+                "@/*": ["./*"]
+              },
+              "types": ["node"]
+            },
+            "include": [
+              "../server/**/*.ts",
+              "../server/**/*.d.ts",
+              "../.nuxt/**/*"
+            ],
+            "exclude": [
+              "../node_modules",
+              "../dist",
+              "../.output"
+            ]
+          }
+          EOF
+
       - name: Build Nuxt Application
         run: npx nuxt build
 
-      # ------ AÇÃO DA VERCEL SUBSTITUÍDA POR COMANDOS DO VERCEL CLI ------
       - name: Deploy to Vercel using CLI
         run: |
           yarn global add vercel@latest
