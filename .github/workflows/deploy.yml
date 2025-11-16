@@ -26,7 +26,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Prepare Nuxt (generate .nuxt files)
-        run: yarn nuxt prepare
+        run: NUXI_DEBUG=1 yarn nuxt prepare
 
       - name: "Debug: List .nuxt directory contents"
         run: ls -R .nuxt || true
