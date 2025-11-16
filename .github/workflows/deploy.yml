@@ -33,7 +33,7 @@ jobs:
       # ------ AÇÃO DA VERCEL SUBSTITUÍDA POR COMANDOS DO VERCEL CLI ------
       - name: Deploy to Vercel using CLI
         run: |
-          yarn install --global vercel@latest # Instala o Vercel CLI globalmente
+          yarn global add vercel@latest # Instala o Vercel CLI globalmente
           
           # Puxa a configuração do projeto Vercel para o diretório local
           # O --token é necessário para autenticação, --yes para respostas automáticas
