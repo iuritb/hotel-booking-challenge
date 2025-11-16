@@ -5,10 +5,10 @@ name: Deploy to Vercel
 on:
   push:
     branches:
-      - main # Dispara o workflow quando há um push para a branch 'main'
+      - master # Dispara o workflow quando há um push para a branch 'master'
   pull_request:
     branches:
-      - main # Opcional: roda o build em pull requests para 'main'
+      - master # Opcional: roda o build em pull requests para 'master'
   workflow_dispatch: # Permite disparar o workflow manualmente na UI do GitHub
 
 jobs:
