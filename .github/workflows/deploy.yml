@@ -28,13 +28,13 @@ jobs:
           yarn install
 
       - name: Prepare Nuxt (generate .nuxt files)
-        run: npx nuxi prepare
+        run: npx nuxt prepare
 
       - name: "Debug: List .nuxt directory contents"
         run: ls -R .nuxt || true
 
       - name: Build Nuxt Application
-        run: npx nuxi build
+        run: npx nuxt build
 
       # ------ AÇÃO DA VERCEL SUBSTITUÍDA POR COMANDOS DO VERCEL CLI ------
       - name: Deploy to Vercel using CLI
