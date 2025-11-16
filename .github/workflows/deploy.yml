@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable # Ou `npm ci`
 
+      - name: Prepare Nuxt (generate .nuxt files)
+        run: yarn nuxt prepare
+
       - name: Build Nuxt.js Application
         run: yarn build # Ou `npm run build`
 
