@@ -30,6 +30,9 @@ jobs:
       - name: Prepare Nuxt (generate .nuxt files)
         run: yarn nuxt prepare
 
+      - name: Debug: List .nuxt directory contents
+        run: ls -R .nuxt || true 
+
       - name: Build Nuxt.js Application
         run: yarn build # Ou `npm run build`
 
