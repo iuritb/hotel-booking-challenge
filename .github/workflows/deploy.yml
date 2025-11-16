@@ -25,39 +25,36 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: yarn install --immutable # Ou `npm ci`
+        run: yarn install --immutable
 
       - name: Prepare Nuxt (generate .nuxt files)
         run: yarn nuxt prepare
 
-      - name: Debug: List .nuxt directory contents
-        run: ls -R .nuxt || true 
+      - name: "Debug: List .nuxt directory contents"
+        run: ls -R .nuxt || true
 
       - name: Build Nuxt.js Application
-        run: yarn build # Ou `npm run build`
+        run: yarn build
 
       # ------ AÇÃO DA VERCEL SUBSTITUÍDA POR COMANDOS DO VERCEL CLI ------
       - name: Deploy to Vercel using CLI
         run: |
-          yarn global add vercel@latest # Instala o Vercel CLI globalmente
+          yarn global add vercel@latest
           
-          # Puxa a configuração do projeto Vercel para o diretório local
-          # O --token é necessário para autenticação, --yes para respostas automáticas
-          # --environment=production indica para puxar as variáveis de ambiente de produção
           vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }} --environment=production
           
-          # Constrói o projeto usando o Vercel CLI, que usa as configurações do vercel.json e .env.production
-          # --prod garante que o build seja otimizado para produção
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
           
-          # Faz o deploy do build já existente (pré-construído)
-          # --prebuilt indica que o build já foi feito e deve ser usado
-          # --prod faz o deploy para produção
-          # --team-id e --project são essenciais para identificar o destino do deploy
+          # Remova a barra invertida final aqui.
+          # Adicione --project e --org para garantir que o deploy seja direcionado corretamente.
+          # Esses IDs são definidos nas variáveis de ambiente do próprio Vercel CLI,
+          # mas é bom passá-los explicitamente ou garantir que `vercel pull` os configure.
           vercel deploy --prebuilt --prod \
             --token=${{ secrets.VERCEL_TOKEN }} \
-        env:
-          # Estas variáveis de ambiente são passadas para o ambiente do shell do `run` step
+            --project=${{ secrets.VERCEL_PROJECT_ID }} \
+            --org=${{ secrets.VERCEL_ORG_ID }} # SEM barra invertida no final da última linha do comando
+-        env: # Indentação incorreta
++        env: # Indentação corrigida para o mesmo nível de 'name' e 'run'
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
