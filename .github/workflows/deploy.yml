@@ -50,7 +50,6 @@ jobs:
           # --team-id e --project são essenciais para identificar o destino do deploy
           vercel deploy --prebuilt --prod \
             --token=${{ secrets.VERCEL_TOKEN }} \
-            --project=${{ secrets.VERCEL_PROJECT_ID }}
         env:
           # Estas variáveis de ambiente são passadas para o ambiente do shell do `run` step
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
