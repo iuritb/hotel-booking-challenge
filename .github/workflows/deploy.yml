@@ -99,6 +99,19 @@ jobs:
           }
           EOF
 
+      - name: "Debug: Verify created tsconfig files"
+        run: |
+          echo "--- Contents of .nuxt/tsconfig.app.json ---"
+          ls -l .nuxt/tsconfig.app.json || true # Adicionado || true para não falhar se o arquivo não existir
+          cat .nuxt/tsconfig.app.json || true # Adicionado || true
+          echo "--- Contents of .nuxt/tsconfig.shared.json ---"
+          ls -l .nuxt/tsconfig.shared.json || true
+          cat .nuxt/tsconfig.shared.json || true
+          echo "--- Contents of .nuxt/tsconfig.node.json ---"
+          ls -l .nuxt/tsconfig.node.json || true
+          cat .nuxt/tsconfig.node.json || true
+          echo "--- End of tsconfig file verification ---"
+
       - name: Build Nuxt Application
         run: npx nuxt build
 
