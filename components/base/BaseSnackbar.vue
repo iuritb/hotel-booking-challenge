@@ -1,4 +1,3 @@
-<!-- components/BaseSnackbar.vue -->
 <template>
   <Transition name="fade">
     <div
@@ -34,13 +33,12 @@ const snackbarTypeClass = computed(() => {
     case 'info':
       return 'bg-blue-500';
     default:
-      return 'bg-gray-700'; // Cor padrão
+      return 'bg-gray-700'; 
   }
 });
 </script>
 
 <style scoped>
-/* Transição para o efeito de fade */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s ease;
 }

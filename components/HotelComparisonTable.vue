@@ -15,7 +15,7 @@
             <NuxtLink :to="`/hotels/${hotel.id}`" class="text-indigo-600 hover:text-indigo-900 ml-2">
               <Icon name="ic:round-info" class="h-4 w-4 inline-block align-text-bottom" />
             </NuxtLink>
-            <!-- Botão para remover da comparação (será funcional após a store) -->
+            
             <button @click="$emit('remove-hotel', hotel.id)" class="text-red-600 hover:text-red-900 ml-2">
               <Icon name="ic:round-close" class="h-4 w-4 inline-block align-text-bottom" />
             </button>
@@ -23,21 +23,21 @@
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
-        <!-- Linha da Imagem -->
+        
         <tr>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Imagem</td>
           <td v-for="hotel in hotels" :key="hotel.id + '-image'" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             <img :src="hotel.imageUrl" :alt="hotel.name" class="h-24 w-auto object-cover rounded-md" />
           </td>
         </tr>
-        <!-- Linha da Localização -->
+        
         <tr>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Localização</td>
           <td v-for="hotel in hotels" :key="hotel.id + '-location'" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {{ hotel.location }}
           </td>
         </tr>
-        <!-- Linha da Avaliação -->
+        
         <tr>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Avaliação</td>
           <td v-for="hotel in hotels" :key="hotel.id + '-rating'" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -51,21 +51,21 @@
             </div>
           </td>
         </tr>
-        <!-- Linha do Preço por Noite -->
+        
         <tr>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Preço / Noite</td>
           <td v-for="hotel in hotels" :key="hotel.id + '-price'" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             R$ {{ hotel.pricePerNight?.toFixed(2) || '0.00' }}
           </td>
         </tr>
-        <!-- Linha de Quartos Disponíveis -->
+        
         <tr>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Quartos Disponíveis</td>
           <td v-for="hotel in hotels" :key="hotel.id + '-rooms'" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {{ hotel.availableRooms }}
           </td>
         </tr>
-        <!-- Linha de Comodidades -->
+        
         <tr>
           <td class="px-6 py-4 text-sm font-medium text-gray-900 align-top">Comodidades</td>
           <td v-for="hotel in hotels" :key="hotel.id + '-amenities'" class="px-6 py-4 text-sm text-gray-500">
@@ -74,14 +74,14 @@
             </ul>
           </td>
         </tr>
-        <!-- Adicione mais linhas de características conforme necessário -->
+        
       </tbody>
     </table>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Hotel } from '~/types/hotel'; // Certifique-se de que o caminho para seu tipo Hotel está correto
+import type { Hotel } from '~/types/hotel'; 
 
 interface Props {
   hotels: Hotel[];
@@ -89,10 +89,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-// Define os eventos que este componente pode emitir
 defineEmits(['remove-hotel']);
 </script>
 
 <style scoped>
-/* Adicione estilos específicos se necessário */
+
 </style>

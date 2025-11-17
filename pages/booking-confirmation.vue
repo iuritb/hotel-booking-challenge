@@ -20,17 +20,15 @@
 <script setup lang="ts">
 import { useHead } from '#app';
 
-// Define o layout padrão
 definePageMeta({
   layout: 'default',
 });
 
-// Define o título da página
 useHead({
   title: 'Reserva Confirmada - Meu App de Reservas',
 });
 </script>
 
 <style scoped>
-/* Estilos específicos para a página de confirmação (se necessário) */
+
 </style>

@@ -1,13 +1,10 @@
-// test/stores/snackbar.test.ts
 import { setActivePinia, createPinia } from 'pinia'
-import { useSnackbarStore } from '~/stores/snackbar' // Ajuste o caminho se necessário
+import { useSnackbarStore } from '~/stores/snackbar' 
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 
 describe('useSnackbarStore', () => {
   beforeEach(() => {
-    // Cria uma nova instância Pinia e a define como ativa antes de cada teste
     setActivePinia(createPinia())
-    // Mock setTimeout para controlar o tempo em testes assíncronos (se necessário)
     vi.useFakeTimers()
   })
 
@@ -41,11 +38,10 @@ describe('useSnackbarStore', () => {
     snackbar.showSnackbar('Mensagem temporária', 'info')
     expect(snackbar.isVisible).toBe(true)
 
-    // Avança o tempo do mock em 3 segundos (tempo padrão no snackbar store)
     vi.advanceTimersByTime(3000)
 
     expect(snackbar.isVisible).toBe(false)
-    vi.useRealTimers() // Volta para os timers reais
+    vi.useRealTimers() 
   })
 
   it('deve definir o tipo padrão para "info" se nenhum for fornecido', () => {

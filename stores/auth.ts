@@ -46,7 +46,7 @@ export const useAuthStore = defineStore('auth', {
       
       this.isAuthenticated = true;
       this.currentUser = { id: `user-${Date.now()}`, name, email };
-      if (process.client) { // Protege o acesso a localStorage
+      if (process.client) {
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         console.log('Auth Store: register() - Usuário salvo no localStorage:', this.currentUser); 
       }

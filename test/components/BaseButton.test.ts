@@ -1,6 +1,5 @@
-// test/components/BaseButton.test.ts
 import { mount } from '@vue/test-utils'
-import BaseButton from '~/components/BaseButton.vue' // Ajuste o caminho se necessário
+import BaseButton from '~/components/BaseButton.vue' 
 
 describe('BaseButton', () => {
   it('deve renderizar o slot padrão corretamente', () => {
@@ -18,7 +17,7 @@ describe('BaseButton', () => {
         variant: 'primary'
       }
     })
-    expect(wrapper.classes()).toContain('bg-indigo-600') // Verifique se essa classe corresponde à sua variante 'primary'
+    expect(wrapper.classes()).toContain('bg-indigo-600') 
   })
 
   it('deve aplicar a classe de variante correta (secondary)', () => {
@@ -27,7 +26,7 @@ describe('BaseButton', () => {
         variant: 'secondary'
       }
     })
-    expect(wrapper.classes()).toContain('bg-gray-200') // Verifique se essa classe corresponde à sua variante 'secondary'
+    expect(wrapper.classes()).toContain('bg-gray-200') 
   })
 
   it('deve aplicar a classe de variante correta (danger)', () => {
@@ -36,7 +35,7 @@ describe('BaseButton', () => {
         variant: 'danger'
       }
     })
-    expect(wrapper.classes()).toContain('bg-red-600') // Verifique se essa classe corresponde à sua variante 'danger'
+    expect(wrapper.classes()).toContain('bg-red-600') 
   })
 
   it('deve emitir o evento "click" quando clicado', async () => {

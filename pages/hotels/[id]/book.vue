@@ -17,7 +17,6 @@
 
       <form @submit.prevent="submitBooking" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Detalhes do Hóspede -->
           <div>
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Seus Dados</h2>
             <div class="mb-4">
@@ -52,7 +51,6 @@
             </div>
           </div>
 
-          <!-- Detalhes da Reserva -->
           <div>
             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Período da Reserva</h2>
             <div class="mb-4">
@@ -94,7 +92,6 @@
 
         <hr class="my-8" />
 
-        <!-- Detalhes do Pagamento -->
         <div>
           <h2 class="text-2xl font-semibold text-gray-700 mb-4">Dados do Cartão de Crédito</h2>
           <p class="text-sm text-gray-500 mb-4">*Este é um sistema de reserva de demonstração. Não use dados de cartão de crédito reais.</p>
@@ -176,7 +173,6 @@ const snackbarStore = useSnackbarStore();
 const authStore = useAuthStore();
 const hotelId = route.params.id as string;
 
-// Redireciona para login se não estiver autenticado
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
     snackbarStore.showSnackbar('Você precisa estar logado para fazer uma reserva.', 'info');
@@ -184,7 +180,6 @@ onMounted(async () => {
     return;
   }
 
-  // Inicializa as datas do formulário
   const d = new Date();
   today.value = d.toISOString().split('T')[0];
   form.value.checkInDate = today.value;
@@ -193,9 +188,8 @@ onMounted(async () => {
   nextDay.setDate(d.getDate() + 1);
   form.value.checkOutDate = nextDay.toISOString().split('T')[0];
 
-  await fetchHotel(); // Garante que o hotel seja carregado antes de permitir interação
+  await fetchHotel(); 
 
-  // Adicionando logs para depuração
   console.log('--- onMounted: Hotel data after fetch ---');
   console.log('hotel.value:', hotel.value);
   if (hotel.value) {
@@ -208,12 +202,10 @@ onMounted(async () => {
   console.log('------------------------------------------');
 });
 
-// Estado do hotel
 const hotel = ref<Hotel | null>(null);
 const pending = ref(true);
 const error = ref<Error | null>(null);
 
-// Dados do formulário
 const form = ref({
   fullName: '',
   email: '',
@@ -223,11 +215,11 @@ const form = ref({
   numberOfGuests: 1,
   cardNumber: '',
   cardHolderName: '',
-  expiryDate: '', // MM/AA
+  expiryDate: '', 
   cvv: '',
 });
 
-const today = ref(''); // Mover para fora do onMounted para ser reativo
+const today = ref(''); 
 
 const minCheckOutDate = computed(() => {
   if (form.value.checkInDate) {
@@ -246,11 +238,9 @@ watch(() => form.value.checkInDate, (newVal) => {
   }
 });
 
-// Estado da submissão e erros
 const submitting = ref(false);
 const errors = ref<Record<string, string>>({});
 
-// Schema de validação com Zod
 const bookingSchema = computed(() => z.object({
   fullName: z.string().min(3, 'Nome completo é obrigatório e deve ter no mínimo 3 caracteres.'),
   email: z.string().email('Email inválido.'),
@@ -271,21 +261,19 @@ const bookingSchema = computed(() => z.object({
   cardHolderName: z.string().min(3, 'Nome no cartão é obrigatório.'),
   expiryDate: z.string().length(5, 'Data de validade inválida (MM/AA).').regex(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, 'Formato MM/AA inválido ou mês/ano inválido.').refine((val) => {
     const [month, year] = val.split('/').map(Number);
-    const fullYear = 2000 + year; // Assumindo anos 2000 em diante
+    const fullYear = 2000 + year; 
     const today = new Date();
-    const currentMonth = today.getMonth() + 1; // getMonth() é base 0
+    const currentMonth = today.getMonth() + 1; 
     const currentYear = today.getFullYear();
-    // Verifica se o ano é futuro, ou se é o ano atual e o mês é atual ou futuro
     return fullYear > currentYear || (fullYear === currentYear && month >= currentMonth);
   }, 'Cartão expirado.'),
   cvv: z.string().min(3, 'CVV deve ter 3 ou 4 dígitos.').max(4, 'CVV deve ter 3 ou 4 dígitos.').regex(/^\d+$/, 'CVV inválido.'),
 }));
 
-// Fetch do hotel
 const fetchHotel = async () => {
   try {
     pending.value = true;
-    const response = await $fetch<{ hotel: Hotel }>(`/api/hotels/${hotelId}`); // Espera { hotel: Hotel }
+    const response = await $fetch<{ hotel: Hotel }>(`/api/hotels/${hotelId}`); 
     if (response && response.hotel && typeof response.hotel.id === 'string' && typeof response.hotel.name === 'string') {
       hotel.value = response.hotel;
     } else {
@@ -295,15 +283,14 @@ const fetchHotel = async () => {
     error.value = new Error(err.message || 'Falha ao carregar detalhes do hotel');
     console.error('Erro ao buscar detalhes do hotel:', err);
     snackbarStore.showSnackbar(error.value.message, 'error');
-    router.replace('/'); // Redireciona para a home se o fetch falhar criticamente
+    router.replace('/');
   } finally {
     pending.value = false;
   }
 };
 
-// Formatação do número do cartão (para ter espaços a cada 4 dígitos)
 watch(() => form.value.cardNumber, (newValue) => {
-  let cleaned = newValue.replace(/\D/g, ''); // Remove tudo que não é dígito
+  let cleaned = newValue.replace(/\D/g, ''); 
   let formatted = '';
   for (let i = 0; i < cleaned.length; i++) {
     if (i > 0 && i % 4 === 0) {
@@ -312,23 +299,20 @@ watch(() => form.value.cardNumber, (newValue) => {
     formatted += cleaned[i];
   }
   form.value.cardNumber = formatted;
-}, { immediate: true }); // Executa imediatamente para formatar valores iniciais
+}, { immediate: true });
 
-// Formatação da data de validade (MM/AA)
 watch(() => form.value.expiryDate, (newValue) => {
   let cleaned = newValue.replace(/\D/g, '');
   if (cleaned.length > 2) {
     cleaned = cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4);
   }
   form.value.expiryDate = cleaned;
-}, { immediate: true }); // Executa imediatamente para formatar valores iniciais
+}, { immediate: true }); 
 
-// Submissão do formulário
 const submitBooking = async () => {
-  errors.value = {}; // Limpa erros anteriores
-  snackbarStore.hideSnackbar(); // Esconde qualquer snackbar anterior
+  errors.value = {}; 
+  snackbarStore.hideSnackbar(); 
 
-  // Logs adicionais para depuração ANTES da requisição
   console.log('--- submitBooking: Checking critical data ---');
   console.log('hotel.value:', hotel.value);
   console.log('hotel.value?.id:', hotel.value?.id);
@@ -352,7 +336,6 @@ const submitBooking = async () => {
 
     submitting.value = true;
 
-    // Calcula o número de noites para o preço total
     const oneDay = 24 * 60 * 60 * 1000;
     const firstDate = new Date(validatedData.checkInDate);
     const secondDate = new Date(validatedData.checkOutDate);
@@ -362,15 +345,15 @@ const submitBooking = async () => {
     const apiResponse = await $fetch('/api/bookings/create', {
       method: 'POST',
       body: {
-        hotelId: hotel.value.id, // Agora garantimos que é uma string
-        hotelName: hotel.value.name, // Agora garantimos que é uma string
-        userId: authStore.currentUser.id, // Agora garantimos que é uma string
+        hotelId: hotel.value.id, 
+        hotelName: hotel.value.name, 
+        userId: authStore.currentUser.id,
         fullName: validatedData.fullName,
         email: validatedData.email,
         phone: validatedData.phone,
         checkInDate: validatedData.checkInDate,
         checkOutDate: validatedData.checkOutDate,
-        numberOfGuests: validatedData.numberOfGuests, // Corrigido para o nome esperado pela API
+        numberOfGuests: validatedData.numberOfGuests, 
         cardNumber: validatedData.cardNumber,
         cardHolderName: validatedData.cardHolderName,
         expiryDate: validatedData.expiryDate,
@@ -399,7 +382,6 @@ const submitBooking = async () => {
       });
       snackbarStore.showSnackbar('Por favor, corrija os erros no formulário.', 'error');
     } else {
-      // Captura e exibe a mensagem de erro detalhada da API se disponível
       const errorMessage = err.data?.message || err.message || 'Erro ao processar a reserva. Tente novamente.';
       snackbarStore.showSnackbar(errorMessage, 'error');
       console.error('Erro na submissão da reserva:', err);
@@ -409,12 +391,10 @@ const submitBooking = async () => {
   }
 };
 
-// Define o layout padrão
 definePageMeta({
   layout: 'default',
 });
 
-// Atualiza o título da página dinamicamente
 useHead({
   title: computed(() => hotel.value ? `Reservar ${hotel.value.name} - Meu App de Reservas` : 'Reservar Hotel'),
 });

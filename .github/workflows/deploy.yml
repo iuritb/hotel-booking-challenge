@@ -3,10 +3,10 @@ name: Deploy to Vercel
 on:
   push:
     branches:
-      - master # Certifique-se de que esta é a branch correta (master ou main)
+      - master 
   pull_request:
     branches:
-      - master # Certifique-se de que esta é a branch correta (master ou main)
+      - master 
   workflow_dispatch:
 
 jobs:
@@ -138,7 +138,7 @@ jobs:
             --token=${{ secrets.VERCEL_TOKEN }} \
             --project=${{ secrets.VERCEL_PROJECT_ID }} \
             --org=${{ secrets.VERCEL_ORG_ID }} # SEM barra invertida no final da última linha do comando
-        env: # Indentação corrigida para o mesmo nível de 'name' e 'run'
+        env: 
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

@@ -1,8 +1,6 @@
-// server/api/bookings/create.post.ts
 import { H3Event } from 'h3';
 import { z } from 'zod';
 
-// Define um esquema para o corpo da requisição de reserva
 const bookingRequestBodySchema = z.object({
   hotelId: z.string().min(1, 'ID do hotel é obrigatório.'),
   hotelName: z.string().min(1, 'Nome do hotel é obrigatório.'),
@@ -20,37 +18,25 @@ const bookingRequestBodySchema = z.object({
   totalPrice: z.number().min(0, 'Preço total não pode ser negativo.'),
 });
 
-// Um armazenamento simples em memória para simular reservas (para demonstração)
 const bookings: any[] = [];
 let bookingIdCounter = 1;
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
-    // Verifica se o usuário está autenticado. No mundo real, isso viria de uma sessão.
-    // Para simplificar, estamos assumindo que userId vem do frontend e é validado pelo Zod.
-    // Em uma aplicação real, a autenticação seria verificada no backend antes de processar.
     const body = await readBody(event);
 
-    // Valida o corpo da requisição usando Zod
     const validatedData = bookingRequestBodySchema.parse(body);
 
-    // Simula interação com o banco de dados (ex: salvar reserva)
     const newBooking = {
       id: `booking-${bookingIdCounter++}`,
       ...validatedData,
       bookingDate: new Date().toISOString(),
-      status: 'confirmed', // Status inicial da reserva
+      status: 'confirmed',
     };
     bookings.push(newBooking);
 
-    // Você pode querer armazenar esta reserva na store de autenticação do usuário também,
-    // mas por enquanto, vamos apenas simular o sucesso.
-    // Exemplo de como acessar bookings: console.log('Current bookings:', bookings);
-
-    // Simula um atraso de rede
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Retorna uma resposta de sucesso
     return {
       status: 'success',
       message: 'Reserva criada com sucesso!',
@@ -58,17 +44,15 @@ export default defineEventHandler(async (event: H3Event) => {
     };
   } catch (error: any) {
     if (error instanceof z.ZodError) {
-      // Lida com erros de validação Zod
-      setResponseStatus(event, 400); // Bad Request
+      setResponseStatus(event, 400); 
       return {
         status: 'error',
         message: 'Dados de reserva inválidos.',
-        errors: error.issues, // Envia erros de validação detalhados
+        errors: error.issues,
       };
     } else {
-      // Lida com outros erros potenciais
       console.error('Erro ao processar reserva na API:', error);
-      setResponseStatus(event, 500); // Internal Server Error
+      setResponseStatus(event, 500); 
       return {
         status: 'error',
         message: 'Falha interna do servidor ao criar reserva.',

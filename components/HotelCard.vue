@@ -17,7 +17,6 @@
       </div>
       <p class="text-gray-900 text-lg font-bold mb-4">R$ {{ hotel.pricePerNight?.toFixed(2) || '0.00' }} / noite</p>
 
-      <!-- Botão de Comparação -->
       <button
         @click.prevent="toggleCompare"
         :class="[
@@ -49,18 +48,16 @@ const props = defineProps<Props>();
 
 const compareStore = useCompareStore();
 
-// Carrega os dados da store na montagem do componente, caso não tenha sido carregado globalmente
-// Isso garante que o estado do botão "Na Comparação" esteja correto
 onMounted(() => {
   compareStore.loadComparisonFromLocalStorage();
 });
 
-// Computed property para verificar se o hotel atual já está na lista de comparação
+
 const isCompared = computed(() => {
   return compareStore.isHotelInComparison(props.hotel.id);
 });
 
-// Função para adicionar ou remover o hotel da lista de comparação
+
 const toggleCompare = () => {
   if (isCompared.value) {
     compareStore.removeHotelFromCompare(props.hotel.id);
@@ -71,5 +68,5 @@ const toggleCompare = () => {
 </script>
 
 <style scoped>
-/* Estilos existentes ou adicionais para o card do hotel */
+
 </style>

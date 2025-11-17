@@ -51,14 +51,14 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "~/stores/auth";
-import { useCompareStore } from "~/stores/compare"; // Importa a store de comparação
+import { useCompareStore } from "~/stores/compare"; 
 
 const authStore = useAuthStore();
-const compareStore = useCompareStore(); // Inicializa a store de comparação
+const compareStore = useCompareStore(); 
 
 onMounted(() => {
   authStore.initializeAuth();
-  compareStore.loadComparisonFromLocalStorage(); // Carrega os dados da store de comparação
+  compareStore.loadComparisonFromLocalStorage(); 
 });
 </script>
 

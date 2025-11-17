@@ -40,13 +40,10 @@ export const useCompareStore = defineStore('compare', {
       }
     },
 
-    // AÇÃO ATUALIZADA AQUI: Limite agora é 5 hotéis
     addHotelToCompare(hotel: Hotel) {
       if (!this.isHotelInComparison(hotel.id)) {
-        // Limita a 5 hotéis para comparação
-        if (this.hotelsToCompare.length >= 5) { // <--- MUDANÇA: de 4 para 5
-          console.warn('Limite de 5 hotéis para comparação atingido. Não foi possível adicionar.'); // <--- MUDANÇA na mensagem
-          // Opcional: Aqui você pode adicionar uma lógica para notificar o usuário na UI
+        if (this.hotelsToCompare.length >= 5) {
+          console.warn('Limite de 5 hotéis para comparação atingido. Não foi possível adicionar.'); 
           return;
         }
         this.hotelsToCompare.push(hotel);

@@ -43,7 +43,6 @@
           <p class="text-3xl font-bold text-indigo-600 mb-6">R$ {{ hotel.pricePerNight?.toFixed(2) || '0.00' }} <span class="text-lg text-gray-500">/ noite</span></p>
         </div>
 
-        <!-- Este bloco agora é apenas um gatilho para a página de reserva -->
         <div class="lg:w-1/3 bg-gray-50 p-4 md:p-6 rounded-lg shadow-inner mt-8 lg:mt-0">
           <h2 class="text-2xl font-semibold text-gray-800 mb-4">Reservar este Hotel</h2>
           <p class="text-gray-700 mb-6">
@@ -91,9 +90,6 @@ const router = useRouter();
 const authStore = useAuthStore();
 const hotelId = route.params.id as string;
 
-// Removemos todas as refs relacionadas ao formulário de reserva (checkInDate, checkOutDate, guests, etc.)
-// e a lógica Zod e de snackbar daqui.
-
 const { data: response, pending, error } = await useFetch<{ hotel: Hotel }>(`/api/hotels/${hotelId}`);
 
 const hotel = computed(() => response.value?.hotel);
@@ -110,5 +106,5 @@ if (!hotel.value && !pending.value && !error.value) {
 </script>
 
 <style scoped>
-/* Estilos específicos para a página de detalhes do hotel */
+
 </style>

@@ -6,9 +6,9 @@ export interface Booking {
   hotelName: string;
   hotelLocation: string;
   imageUrl: string;
-  checkInDate: string; // Formato YYYY-MM-DD
-  checkOutDate: string; // Formato YYYY-MM-DD
+  checkInDate: string; 
+  checkOutDate: string; 
   guests: number;
-  bookingDate: string; // Data da criação da reserva (ISO string)
+  bookingDate: string; 
   totalPrice: number;
 }
