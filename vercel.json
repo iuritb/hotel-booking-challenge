@@ -1,6 +1,5 @@
 {
   "framework": "nuxtjs",
   "buildCommand": "yarn build",
-  "outputDirectory": ".output/public",
-  "serverFiles": [".output/server/**"]
+  "outputDirectory": ".output/public"
 }
