@@ -309,6 +309,9 @@ function joinRelativeURL(..._input) {
   }
   return url;
 }
+function isSamePath(p1, p2) {
+  return decode(withoutTrailingSlash(p1)) === decode(withoutTrailingSlash(p2));
+}
 
 const protocolRelative = Symbol.for("ufo:protocolRelative");
 function parseURL(input = "", defaultProto) {
@@ -1169,17 +1172,6 @@ function setResponseHeaders(event, headers) {
 const setHeaders = setResponseHeaders;
 function setResponseHeader(event, name, value) {
   event.node.res.setHeader(name, value);
-}
-function appendResponseHeader(event, name, value) {
-  let current = event.node.res.getHeader(name);
-  if (!current) {
-    event.node.res.setHeader(name, value);
-    return;
-  }
-  if (!Array.isArray(current)) {
-    current = [current.toString()];
-  }
-  event.node.res.setHeader(name, [...current, value]);
 }
 function isStream(data) {
   if (!data || typeof data !== "object") {
@@ -3952,7 +3944,9 @@ function klona(x) {
 }
 
 const inlineAppConfig = {
-  "nuxt": {}
+  "nuxt": {
+    "buildId": "9a452ab2-38d0-4266-858e-991045d410df"
+  }
 };
 
 
@@ -4055,7 +4049,6 @@ function _expandFromEnv(value) {
 const _inlineRuntimeConfig = {
   "app": {
     "baseURL": "/",
-    "buildId": "d6c3c7c8-1dfd-46a9-aa67-553fe2b06bf0",
     "buildAssetsDir": "/_nuxt/",
     "cdnURL": ""
   },
@@ -4227,28 +4220,6 @@ const defaultNamespace = _globalThis[globalKey] || (_globalThis[globalKey] = cre
 const getContext = (key, opts = {}) => defaultNamespace.get(key, opts);
 const asyncHandlersKey = "__unctx_async_handlers__";
 const asyncHandlers = _globalThis[asyncHandlersKey] || (_globalThis[asyncHandlersKey] = /* @__PURE__ */ new Set());
-function executeAsync(function_) {
-  const restores = [];
-  for (const leaveHandler of asyncHandlers) {
-    const restore2 = leaveHandler();
-    if (restore2) {
-      restores.push(restore2);
-    }
-  }
-  const restore = () => {
-    for (const restore2 of restores) {
-      restore2();
-    }
-  };
-  let awaitable = function_();
-  if (awaitable && typeof awaitable === "object" && "catch" in awaitable) {
-    awaitable = awaitable.catch((error) => {
-      restore();
-      throw error;
-    });
-  }
-  return [awaitable, restore];
-}
 
 const config = useRuntimeConfig();
 const _routeRulesMatcher = toRouteMatcher(
@@ -4348,27 +4319,55 @@ function hasReqHeader(event, name, includes) {
   const value = getRequestHeader(event, name);
   return value && typeof value === "string" && value.toLowerCase().includes(includes);
 }
+function normalizeError(error, isDev) {
+  const cwd = typeof process.cwd === "function" ? process.cwd() : "/";
+  const stack = (error.unhandled || error.fatal) ? [] : (error.stack || "").split("\n").splice(1).filter((line) => line.includes("at ")).map((line) => {
+    const text = line.replace(cwd + "/", "./").replace("webpack:/", "").replace("file://", "").trim();
+    return {
+      text,
+      internal: line.includes("node_modules") && !line.includes(".cache") || line.includes("internal") || line.includes("new Promise")
+    };
+  });
+  const statusCode = error.statusCode || 500;
+  const statusMessage = error.statusMessage ?? (statusCode === 404 ? "Not Found" : "");
+  const message = error.unhandled ? "internal server error" : error.message || error.toString();
+  return {
+    stack,
+    statusCode,
+    statusMessage,
+    message
+  };
+}
 
-const errorHandler$0 = (async function errorhandler(error, event, { defaultHandler }) {
-  if (event.handled || isJsonRequest(event)) {
+const errorHandler$0 = (async function errorhandler(error, event) {
+  const { stack, statusCode, statusMessage, message } = normalizeError(error);
+  const errorObject = {
+    url: event.path,
+    statusCode,
+    statusMessage,
+    message,
+    stack: "",
+    // TODO: check and validate error.data for serialisation into query
+    data: error.data
+  };
+  if (error.unhandled || error.fatal) {
+    const tags = [
+      "[nuxt]",
+      "[request error]",
+      error.unhandled && "[unhandled]",
+      error.fatal && "[fatal]",
+      Number(errorObject.statusCode) !== 200 && `[${errorObject.statusCode}]`
+    ].filter(Boolean).join(" ");
+    console.error(tags, errorObject.message + "\n" + stack.map((l) => "  " + l.text).join("  \n"));
+  }
+  if (event.handled) {
     return;
   }
-  const defaultRes = await defaultHandler(error, event, { json: true });
-  const statusCode = error.statusCode || 500;
-  if (statusCode === 404 && defaultRes.status === 302) {
-    setResponseHeaders(event, defaultRes.headers);
-    setResponseStatus(event, defaultRes.status, defaultRes.statusText);
-    return send(event, JSON.stringify(defaultRes.body, null, 2));
+  setResponseStatus(event, errorObject.statusCode !== 200 && errorObject.statusCode || 500, errorObject.statusMessage);
+  if (isJsonRequest(event)) {
+    setResponseHeader(event, "Content-Type", "application/json");
+    return send(event, JSON.stringify(errorObject));
   }
-  const errorObject = defaultRes.body;
-  const url = new URL(errorObject.url);
-  errorObject.url = withoutBase(url.pathname, useRuntimeConfig(event).app.baseURL) + url.search + url.hash;
-  errorObject.message ||= "Server Error";
-  errorObject.data ||= error.data;
-  errorObject.statusMessage ||= error.statusMessage;
-  delete defaultRes.headers["content-type"];
-  delete defaultRes.headers["content-security-policy"];
-  setResponseHeaders(event, defaultRes.headers);
   const reqHeaders = getRequestHeaders(event);
   const isRenderingError = event.path.startsWith("/__nuxt_error") || !!reqHeaders["x-nuxt-error"];
   const res = isRenderingError ? null : await useNitroApp().localFetch(
@@ -4378,23 +4377,22 @@ const errorHandler$0 = (async function errorhandler(error, event, { defaultHandl
       redirect: "manual"
     }
   ).catch(() => null);
-  if (event.handled) {
-    return;
-  }
   if (!res) {
     const { template } = await import('./error-500.mjs');
+    if (event.handled) {
+      return;
+    }
     setResponseHeader(event, "Content-Type", "text/html;charset=UTF-8");
     return send(event, template(errorObject));
   }
   const html = await res.text();
+  if (event.handled) {
+    return;
+  }
   for (const [header, value] of res.headers.entries()) {
-    if (header === "set-cookie") {
-      appendResponseHeader(event, header, value);
-      continue;
-    }
     setResponseHeader(event, header, value);
   }
-  setResponseStatus(event, res.status && res.status !== 200 ? res.status : defaultRes.status, res.statusText || defaultRes.statusText);
+  setResponseStatus(event, res.status && res.status !== 200 ? res.status : void 0, res.statusText);
   return send(event, html);
 });
 
@@ -4484,15 +4482,13 @@ const plugins = [
   
 ];
 
-const _SxA8c9 = defineEventHandler(() => {});
-
 const _lazy_6qXNN6 = () => import('../routes/api/auth/login.post.mjs');
 const _lazy_6eC8Mb = () => import('../routes/api/auth/register.post.mjs');
 const _lazy_xVa74k = () => import('../routes/api/bookings.post.mjs');
 const _lazy_laAltz = () => import('../routes/api/bookings/create.post.mjs');
 const _lazy_vCu3wX = () => import('../routes/api/hotels.get.mjs');
 const _lazy_N52HBP = () => import('../routes/api/hotels/_id_.get.mjs');
-const _lazy_kAULOt = () => import('../routes/renderer.mjs').then(function (n) { return n.r; });
+const _lazy_Ek62yN = () => import('../routes/renderer.mjs').then(function (n) { return n.r; });
 
 const handlers = [
   { route: '/api/auth/login', handler: _lazy_6qXNN6, lazy: true, middleware: false, method: "post" },
@@ -4501,9 +4497,8 @@ const handlers = [
   { route: '/api/bookings/create', handler: _lazy_laAltz, lazy: true, middleware: false, method: "post" },
   { route: '/api/hotels', handler: _lazy_vCu3wX, lazy: true, middleware: false, method: "get" },
   { route: '/api/hotels/:id', handler: _lazy_N52HBP, lazy: true, middleware: false, method: "get" },
-  { route: '/__nuxt_error', handler: _lazy_kAULOt, lazy: true, middleware: false, method: undefined },
-  { route: '/__nuxt_island/**', handler: _SxA8c9, lazy: false, middleware: false, method: undefined },
-  { route: '/**', handler: _lazy_kAULOt, lazy: true, middleware: false, method: undefined }
+  { route: '/__nuxt_error', handler: _lazy_Ek62yN, lazy: true, middleware: false, method: undefined },
+  { route: '/**', handler: _lazy_Ek62yN, lazy: true, middleware: false, method: undefined }
 ];
 
 function createNitroApp() {
@@ -4686,5 +4681,5 @@ function defineRenderHandler(render) {
   });
 }
 
-export { $fetch as $, hash$1 as A, withTrailingSlash as B, withoutTrailingSlash as C, useRuntimeConfig as a, getResponseStatusText as b, createError$1 as c, defineEventHandler as d, getResponseStatus as e, defineRenderHandler as f, getQuery as g, destr as h, getRouteRules as i, joinRelativeURL as j, hasProtocol as k, isScriptProtocol as l, joinURL as m, sanitizeStatusCode as n, getContext as o, parseQuery as p, createHooks as q, readBody as r, setResponseStatus as s, toNodeListener as t, useNitroApp as u, executeAsync as v, withQuery as w, toRouteMatcher as x, createRouter$1 as y, defu as z };
+export { $fetch as $, hash$1 as A, withTrailingSlash as B, withoutTrailingSlash as C, useRuntimeConfig as a, defineRenderHandler as b, createError$1 as c, defineEventHandler as d, getRouteRules as e, getResponseStatusText as f, getQuery as g, getResponseStatus as h, hasProtocol as i, joinRelativeURL as j, parseURL as k, isScriptProtocol as l, joinURL as m, sanitizeStatusCode as n, defu as o, parseQuery as p, createHooks as q, readBody as r, setResponseStatus as s, toNodeListener as t, useNitroApp as u, isSamePath as v, withQuery as w, toRouteMatcher as x, createRouter$1 as y, getContext as z };
 //# sourceMappingURL=nitro.mjs.map

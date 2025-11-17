@@ -9,11 +9,9 @@ export default defineNuxtConfig({
   ],
 
   nitro: {
-    preset: 'vercel',
-    // Remove a compatibilityDate daqui
+    preset: 'vercel'
   },
 
-  // Adicione a compatibilityDate aqui no nível raiz
   compatibilityDate: '2024-11-16',
 
   css: [
@@ -47,10 +45,5 @@ export default defineNuxtConfig({
       ],
       link: []
     }
-  },
-
-  // Remove esta seção, não é necessária para Nuxt 3
-  // build: {
-  //   transpile: ['pinia'],
-  // },
+  }
 });

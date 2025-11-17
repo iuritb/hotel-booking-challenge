@@ -19,7 +19,7 @@ const useCompareStore = defineStore("compare", {
     addHotelToCompare(hotel) {
       if (!this.isHotelInComparison(hotel.id)) {
         if (this.hotelsToCompare.length >= 5) {
-          console.warn("Limite de 5 hotéis para comparação atingido. Não foi possível adicionar.");
+          console.warn("Limite de 5 hot\xE9is para compara\xE7\xE3o atingido. N\xE3o foi poss\xEDvel adicionar.");
           return;
         }
         this.hotelsToCompare.push(hotel);

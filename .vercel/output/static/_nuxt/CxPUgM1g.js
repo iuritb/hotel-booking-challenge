@@ -1,1 +1,0 @@
-import{T as a,k as r,U as i}from"./B5yRquVf.js";const s=a((t,n)=>{const e=r();if(e.initializeAuth(),!e.isAuthenticated&&t.path!=="/login"&&t.path!=="/register")return i("/login");if(e.isAuthenticated&&(t.path==="/login"||t.path==="/register"))return i("/")});export{s as default};
