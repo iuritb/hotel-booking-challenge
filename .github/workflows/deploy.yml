@@ -21,125 +21,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'yarn'
 
-      - name: Clean and Install dependencies
-        run: |
-          rm -rf node_modules .nuxt yarn.lock
-          yarn install
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-      - name: Prepare Nuxt (generate .nuxt files)
+      - name: Prepare Nuxt
         run: npx nuxt prepare
 
-      - name: "Debug: List .nuxt directory contents"
-        run: ls -R .nuxt || true
-
-      - name: Create Missing tsconfig files
-        run: |
-          # Create tsconfig.app.json for client-side build
-          cat << EOF > .nuxt/tsconfig.app.json
-          {
-            "extends": "./tsconfig.json",
-            "compilerOptions": {
-              "moduleResolution": "node",
-              "types": ["@nuxt/vue-app", "pinia"],
-              "paths": {
-                "~/*": ["./*"],
-                "@/*": ["./*"]
-              }
-            },
-            "include": [
-              "../**/*",
-              "../.nuxt/**/*"
-            ],
-            "exclude": [
-              "../node_modules",
-              "../dist",
-              "../.output"
-            ]
-          }
-          EOF
-
-          # Create tsconfig.shared.json for shared types/configs
-          cat << EOF > .nuxt/tsconfig.shared.json
-          {
-            "extends": "./tsconfig.json",
-            "compilerOptions": {
-              // Add shared compiler options here if needed
-            }
-          }
-          EOF
-
-          # Create tsconfig.node.json for Node.js runtime/build context
-          cat << EOF > .nuxt/tsconfig.node.json
-          {
-            "extends": "./tsconfig.json",
-            "compilerOptions": {
-              "target": "esnext",
-              "module": "esnext",
-              "moduleResolution": "node",
-              "strict": true,
-              "lib": ["esnext"],
-              "baseUrl": ".",
-              "paths": {
-                "~/*": ["./*"],
-                "@/*": ["./*"]
-              },
-              "types": ["node"]
-            },
-            "include": [
-              "../server/**/*.ts",
-              "../server/**/*.d.ts",
-              "../.nuxt/**/*"
-            ],
-            "exclude": [
-              "../node_modules",
-              "../dist",
-              "../.output"
-            ]
-          }
-          EOF
-
-      - name: "Debug: Verify created tsconfig files"
-        run: |
-          echo "--- Contents of .nuxt/tsconfig.app.json ---"
-          ls -l .nuxt/tsconfig.app.json || true # Adicionado || true para não falhar se o arquivo não existir
-          cat .nuxt/tsconfig.app.json || true # Adicionado || true
-          echo "--- Contents of .nuxt/tsconfig.shared.json ---"
-          ls -l .nuxt/tsconfig.shared.json || true
-          cat .nuxt/tsconfig.shared.json || true
-          echo "--- Contents of .nuxt/tsconfig.node.json ---"
-          ls -l .nuxt/tsconfig.node.json || true
-          cat .nuxt/tsconfig.node.json || true
-          echo "--- End of tsconfig file verification ---"
-
       - name: Build Nuxt Application
-        run: |
-           echo "--- IMMEDIATE PRE-BUILD CHECK ---"
-           echo "ls -l .nuxt/tsconfig.app.json"
-           ls -l .nuxt/tsconfig.app.json
-           echo "cat .nuxt/tsconfig.app.json"
-           cat .nuxt/tsconfig.app.json
-           echo "--- STARTING NUXT BUILD ---"
-           npx nuxt build
+        run: npx nuxt build
 
-      - name: Deploy to Vercel using CLI
-        run: |
-          yarn global add vercel@latest
-          
-          vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }} --environment=production
-          
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-          
-          # Remova a barra invertida final aqui.
-          # Adicione --project e --org para garantir que o deploy seja direcionado corretamente.
-          # Esses IDs são definidos nas variáveis de ambiente do próprio Vercel CLI,
-          # mas é bom passá-los explicitamente ou garantir que `vercel pull` os configure.
-          vercel deploy --prebuilt --prod \
-            --token=${{ secrets.VERCEL_TOKEN }} \
-            --project=${{ secrets.VERCEL_PROJECT_ID }} \
-            --org=${{ secrets.VERCEL_ORG_ID }} # SEM barra invertida no final da última linha do comando
-        env: 
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      # --------------------------------------------------------------------
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
