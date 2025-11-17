@@ -1,4 +1,3 @@
-
 import { defineNuxtConfig } from 'nuxt/config';
 
 export default defineNuxtConfig({
@@ -11,8 +10,11 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'vercel',
-    compatibilityDate: '2025-11-16',
+    // Remove a compatibilityDate daqui
   },
+
+  // Adicione a compatibilityDate aqui no nível raiz
+  compatibilityDate: '2024-11-16',
 
   css: [
     '~/assets/css/tailwind.css',
@@ -28,7 +30,7 @@ export default defineNuxtConfig({
     apiSecret: process.env.NUXT_API_SECRET,
 
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api',
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
     },
   },
 
@@ -42,15 +44,13 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { hid: 'description', name: 'description', content: 'Desafio técnico de reserva de hotéis com Nuxt 3' },
-
       ],
-      link: [
-      ]
+      link: []
     }
   },
 
-  build: {
-    transpile: ['pinia'],
-  },
-
+  // Remove esta seção, não é necessária para Nuxt 3
+  // build: {
+  //   transpile: ['pinia'],
+  // },
 });

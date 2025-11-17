@@ -1,11 +1,6 @@
 {
-  "build": {
-    "outputDirectory": ".output"
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/server/index.mjs"
-    }
-  ]
+  "framework": "nuxtjs",
+  "buildCommand": "yarn build",
+  "outputDirectory": ".output/public",
+  "serverFiles": [".output/server/**"]
 }

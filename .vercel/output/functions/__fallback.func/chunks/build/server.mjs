@@ -1,6 +1,7 @@
 import process from 'node:process';globalThis._importMeta_=globalThis._importMeta_||{url:"file:///_entry.js",env:process.env};import { hasInjectionContext, getCurrentInstance, inject, defineComponent, createElementBlock, shallowRef, provide, cloneVNode, h, defineAsyncComponent, computed, unref, shallowReactive, ref, Suspense, Fragment, useSSRContext, createApp, withCtx, createVNode, toRef, onErrorCaptured, onServerPrefetch, resolveDynamicComponent, reactive, effectScope, isReadonly, isRef, isShallow, isReactive, toRaw, nextTick, mergeProps, getCurrentScope } from 'vue';
 import { c as createError$1, k as hasProtocol, l as isScriptProtocol, m as joinURL, w as withQuery, n as sanitizeStatusCode, o as getContext, $ as $fetch, q as createHooks, v as executeAsync, x as toRouteMatcher, y as createRouter$1, z as defu } from '../_/nitro.mjs';
 import { u as useHead$1, h as headSymbol, b as baseURL } from '../routes/renderer.mjs';
+import { createPinia, setActivePinia, shouldHydrate } from 'pinia';
 import { useRoute as useRoute$1, RouterView, createMemoryHistory, createRouter, START_LOCATION } from 'vue-router';
 import { ssrRenderAttrs, ssrRenderComponent, ssrRenderSuspense, ssrRenderVNode } from 'vue/server-renderer';
 import 'node:http';
@@ -362,592 +363,6 @@ const createError = (error) => {
   });
   return nuxtError;
 };
-function getAugmentedNamespace(n) {
-  if (Object.prototype.hasOwnProperty.call(n, "__esModule")) return n;
-  var f = n.default;
-  if (typeof f == "function") {
-    var a = function a2() {
-      var isInstance = false;
-      try {
-        isInstance = this instanceof a2;
-      } catch {
-      }
-      if (isInstance) {
-        return Reflect.construct(f, arguments, this.constructor);
-      }
-      return f.apply(this, arguments);
-    };
-    a.prototype = f.prototype;
-  } else a = {};
-  Object.defineProperty(a, "__esModule", { value: true });
-  Object.keys(n).forEach(function(k) {
-    var d = Object.getOwnPropertyDescriptor(n, k);
-    Object.defineProperty(a, k, d.get ? d : {
-      enumerable: true,
-      get: function() {
-        return n[k];
-      }
-    });
-  });
-  return a;
-}
-var pinia_prod = {};
-const install = () => {
-};
-function set(target, key, val) {
-  if (Array.isArray(target)) {
-    target.length = Math.max(target.length, key);
-    target.splice(key, 1, val);
-    return val;
-  }
-  target[key] = val;
-  return val;
-}
-function del(target, key) {
-  if (Array.isArray(target)) {
-    target.splice(key, 1);
-    return;
-  }
-  delete target[key];
-}
-const Vue2 = void 0;
-const isVue2 = false;
-const isVue3 = true;
-const vueDemi = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  Vue2,
-  del,
-  install,
-  isVue2,
-  isVue3,
-  set
-}, Symbol.toStringTag, { value: "Module" }));
-const require$$0 = /* @__PURE__ */ getAugmentedNamespace(vueDemi);
-var hasRequiredPinia_prod;
-function requirePinia_prod() {
-  if (hasRequiredPinia_prod) return pinia_prod;
-  hasRequiredPinia_prod = 1;
-  (function(exports$1) {
-    var vueDemi2 = require$$0;
-    let activePinia;
-    const setActivePinia = (pinia) => activePinia = pinia;
-    const getActivePinia = () => vueDemi2.hasInjectionContext() && vueDemi2.inject(piniaSymbol) || activePinia;
-    const piniaSymbol = (
-      /* istanbul ignore next */
-      Symbol()
-    );
-    function isPlainObject(o) {
-      return o && typeof o === "object" && Object.prototype.toString.call(o) === "[object Object]" && typeof o.toJSON !== "function";
-    }
-    exports$1.MutationType = void 0;
-    (function(MutationType) {
-      MutationType["direct"] = "direct";
-      MutationType["patchObject"] = "patch object";
-      MutationType["patchFunction"] = "patch function";
-    })(exports$1.MutationType || (exports$1.MutationType = {}));
-    function createPinia() {
-      const scope = vueDemi2.effectScope(true);
-      const state = scope.run(() => vueDemi2.ref({}));
-      let _p = [];
-      let toBeInstalled = [];
-      const pinia = vueDemi2.markRaw({
-        install(app) {
-          setActivePinia(pinia);
-          if (!vueDemi2.isVue2) {
-            pinia._a = app;
-            app.provide(piniaSymbol, pinia);
-            app.config.globalProperties.$pinia = pinia;
-            toBeInstalled.forEach((plugin2) => _p.push(plugin2));
-            toBeInstalled = [];
-          }
-        },
-        use(plugin2) {
-          if (!this._a && !vueDemi2.isVue2) {
-            toBeInstalled.push(plugin2);
-          } else {
-            _p.push(plugin2);
-          }
-          return this;
-        },
-        _p,
-        // it's actually undefined here
-        // @ts-expect-error
-        _a: null,
-        _e: scope,
-        _s: /* @__PURE__ */ new Map(),
-        state
-      });
-      return pinia;
-    }
-    function disposePinia(pinia) {
-      pinia._e.stop();
-      pinia._s.clear();
-      pinia._p.splice(0);
-      pinia.state.value = {};
-      pinia._a = null;
-    }
-    function acceptHMRUpdate(initialUseStore, hot) {
-      {
-        return () => {
-        };
-      }
-    }
-    const noop = () => {
-    };
-    function addSubscription(subscriptions, callback, detached, onCleanup = noop) {
-      subscriptions.push(callback);
-      const removeSubscription = () => {
-        const idx = subscriptions.indexOf(callback);
-        if (idx > -1) {
-          subscriptions.splice(idx, 1);
-          onCleanup();
-        }
-      };
-      if (!detached && vueDemi2.getCurrentScope()) {
-        vueDemi2.onScopeDispose(removeSubscription);
-      }
-      return removeSubscription;
-    }
-    function triggerSubscriptions(subscriptions, ...args) {
-      subscriptions.slice().forEach((callback) => {
-        callback(...args);
-      });
-    }
-    const fallbackRunWithContext = (fn) => fn();
-    const ACTION_MARKER = Symbol();
-    const ACTION_NAME = Symbol();
-    function mergeReactiveObjects(target, patchToApply) {
-      if (target instanceof Map && patchToApply instanceof Map) {
-        patchToApply.forEach((value, key) => target.set(key, value));
-      } else if (target instanceof Set && patchToApply instanceof Set) {
-        patchToApply.forEach(target.add, target);
-      }
-      for (const key in patchToApply) {
-        if (!patchToApply.hasOwnProperty(key))
-          continue;
-        const subPatch = patchToApply[key];
-        const targetValue = target[key];
-        if (isPlainObject(targetValue) && isPlainObject(subPatch) && target.hasOwnProperty(key) && !vueDemi2.isRef(subPatch) && !vueDemi2.isReactive(subPatch)) {
-          target[key] = mergeReactiveObjects(targetValue, subPatch);
-        } else {
-          target[key] = subPatch;
-        }
-      }
-      return target;
-    }
-    const skipHydrateSymbol = (
-      /* istanbul ignore next */
-      Symbol()
-    );
-    function skipHydrate(obj) {
-      return Object.defineProperty(obj, skipHydrateSymbol, {});
-    }
-    function shouldHydrate(obj) {
-      return !isPlainObject(obj) || !obj.hasOwnProperty(skipHydrateSymbol);
-    }
-    const { assign } = Object;
-    function isComputed(o) {
-      return !!(vueDemi2.isRef(o) && o.effect);
-    }
-    function createOptionsStore(id, options, pinia, hot) {
-      const { state, actions, getters } = options;
-      const initialState = pinia.state.value[id];
-      let store;
-      function setup() {
-        if (!initialState && true) {
-          if (vueDemi2.isVue2) {
-            vueDemi2.set(pinia.state.value, id, state ? state() : {});
-          } else {
-            pinia.state.value[id] = state ? state() : {};
-          }
-        }
-        const localState = vueDemi2.toRefs(pinia.state.value[id]);
-        return assign(localState, actions, Object.keys(getters || {}).reduce((computedGetters, name) => {
-          computedGetters[name] = vueDemi2.markRaw(vueDemi2.computed(() => {
-            setActivePinia(pinia);
-            const store2 = pinia._s.get(id);
-            if (vueDemi2.isVue2 && !store2._r)
-              return;
-            return getters[name].call(store2, store2);
-          }));
-          return computedGetters;
-        }, {}));
-      }
-      store = createSetupStore(id, setup, options, pinia, hot, true);
-      return store;
-    }
-    function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) {
-      let scope;
-      const optionsForPlugin = assign({ actions: {} }, options);
-      const $subscribeOptions = { deep: true };
-      let isListening;
-      let isSyncListening;
-      let subscriptions = [];
-      let actionSubscriptions = [];
-      let debuggerEvents;
-      const initialState = pinia.state.value[$id];
-      if (!isOptionsStore && !initialState && true) {
-        if (vueDemi2.isVue2) {
-          vueDemi2.set(pinia.state.value, $id, {});
-        } else {
-          pinia.state.value[$id] = {};
-        }
-      }
-      vueDemi2.ref({});
-      let activeListener;
-      function $patch(partialStateOrMutator) {
-        let subscriptionMutation;
-        isListening = isSyncListening = false;
-        if (typeof partialStateOrMutator === "function") {
-          partialStateOrMutator(pinia.state.value[$id]);
-          subscriptionMutation = {
-            type: exports$1.MutationType.patchFunction,
-            storeId: $id,
-            events: debuggerEvents
-          };
-        } else {
-          mergeReactiveObjects(pinia.state.value[$id], partialStateOrMutator);
-          subscriptionMutation = {
-            type: exports$1.MutationType.patchObject,
-            payload: partialStateOrMutator,
-            storeId: $id,
-            events: debuggerEvents
-          };
-        }
-        const myListenerId = activeListener = Symbol();
-        vueDemi2.nextTick().then(() => {
-          if (activeListener === myListenerId) {
-            isListening = true;
-          }
-        });
-        isSyncListening = true;
-        triggerSubscriptions(subscriptions, subscriptionMutation, pinia.state.value[$id]);
-      }
-      const $reset = isOptionsStore ? function $reset2() {
-        const { state } = options;
-        const newState = state ? state() : {};
-        this.$patch(($state) => {
-          assign($state, newState);
-        });
-      } : (
-        /* istanbul ignore next */
-        noop
-      );
-      function $dispose() {
-        scope.stop();
-        subscriptions = [];
-        actionSubscriptions = [];
-        pinia._s.delete($id);
-      }
-      const action = (fn, name = "") => {
-        if (ACTION_MARKER in fn) {
-          fn[ACTION_NAME] = name;
-          return fn;
-        }
-        const wrappedAction = function() {
-          setActivePinia(pinia);
-          const args = Array.from(arguments);
-          const afterCallbackList = [];
-          const onErrorCallbackList = [];
-          function after(callback) {
-            afterCallbackList.push(callback);
-          }
-          function onError(callback) {
-            onErrorCallbackList.push(callback);
-          }
-          triggerSubscriptions(actionSubscriptions, {
-            args,
-            name: wrappedAction[ACTION_NAME],
-            store,
-            after,
-            onError
-          });
-          let ret;
-          try {
-            ret = fn.apply(this && this.$id === $id ? this : store, args);
-          } catch (error) {
-            triggerSubscriptions(onErrorCallbackList, error);
-            throw error;
-          }
-          if (ret instanceof Promise) {
-            return ret.then((value) => {
-              triggerSubscriptions(afterCallbackList, value);
-              return value;
-            }).catch((error) => {
-              triggerSubscriptions(onErrorCallbackList, error);
-              return Promise.reject(error);
-            });
-          }
-          triggerSubscriptions(afterCallbackList, ret);
-          return ret;
-        };
-        wrappedAction[ACTION_MARKER] = true;
-        wrappedAction[ACTION_NAME] = name;
-        return wrappedAction;
-      };
-      const partialStore = {
-        _p: pinia,
-        // _s: scope,
-        $id,
-        $onAction: addSubscription.bind(null, actionSubscriptions),
-        $patch,
-        $reset,
-        $subscribe(callback, options2 = {}) {
-          const removeSubscription = addSubscription(subscriptions, callback, options2.detached, () => stopWatcher());
-          const stopWatcher = scope.run(() => vueDemi2.watch(() => pinia.state.value[$id], (state) => {
-            if (options2.flush === "sync" ? isSyncListening : isListening) {
-              callback({
-                storeId: $id,
-                type: exports$1.MutationType.direct,
-                events: debuggerEvents
-              }, state);
-            }
-          }, assign({}, $subscribeOptions, options2)));
-          return removeSubscription;
-        },
-        $dispose
-      };
-      if (vueDemi2.isVue2) {
-        partialStore._r = false;
-      }
-      const store = vueDemi2.reactive(partialStore);
-      pinia._s.set($id, store);
-      const runWithContext = pinia._a && pinia._a.runWithContext || fallbackRunWithContext;
-      const setupStore = runWithContext(() => pinia._e.run(() => (scope = vueDemi2.effectScope()).run(() => setup({ action }))));
-      for (const key in setupStore) {
-        const prop = setupStore[key];
-        if (vueDemi2.isRef(prop) && !isComputed(prop) || vueDemi2.isReactive(prop)) {
-          if (!isOptionsStore) {
-            if (initialState && shouldHydrate(prop)) {
-              if (vueDemi2.isRef(prop)) {
-                prop.value = initialState[key];
-              } else {
-                mergeReactiveObjects(prop, initialState[key]);
-              }
-            }
-            if (vueDemi2.isVue2) {
-              vueDemi2.set(pinia.state.value[$id], key, prop);
-            } else {
-              pinia.state.value[$id][key] = prop;
-            }
-          }
-        } else if (typeof prop === "function") {
-          const actionValue = action(prop, key);
-          if (vueDemi2.isVue2) {
-            vueDemi2.set(setupStore, key, actionValue);
-          } else {
-            setupStore[key] = actionValue;
-          }
-          optionsForPlugin.actions[key] = prop;
-        } else ;
-      }
-      if (vueDemi2.isVue2) {
-        Object.keys(setupStore).forEach((key) => {
-          vueDemi2.set(store, key, setupStore[key]);
-        });
-      } else {
-        assign(store, setupStore);
-        assign(vueDemi2.toRaw(store), setupStore);
-      }
-      Object.defineProperty(store, "$state", {
-        get: () => pinia.state.value[$id],
-        set: (state) => {
-          $patch(($state) => {
-            assign($state, state);
-          });
-        }
-      });
-      if (vueDemi2.isVue2) {
-        store._r = true;
-      }
-      pinia._p.forEach((extender) => {
-        {
-          assign(store, scope.run(() => extender({
-            store,
-            app: pinia._a,
-            pinia,
-            options: optionsForPlugin
-          })));
-        }
-      });
-      if (initialState && isOptionsStore && options.hydrate) {
-        options.hydrate(store.$state, initialState);
-      }
-      isListening = true;
-      isSyncListening = true;
-      return store;
-    }
-    // @__NO_SIDE_EFFECTS__
-    function defineStore(idOrOptions, setup, setupOptions) {
-      let id;
-      let options;
-      const isSetupStore = typeof setup === "function";
-      if (typeof idOrOptions === "string") {
-        id = idOrOptions;
-        options = isSetupStore ? setupOptions : setup;
-      } else {
-        options = idOrOptions;
-        id = idOrOptions.id;
-      }
-      function useStore(pinia, hot) {
-        const hasContext = vueDemi2.hasInjectionContext();
-        pinia = // in test mode, ignore the argument provided as we can always retrieve a
-        // pinia instance with getActivePinia()
-        (pinia) || (hasContext ? vueDemi2.inject(piniaSymbol, null) : null);
-        if (pinia)
-          setActivePinia(pinia);
-        pinia = activePinia;
-        if (!pinia._s.has(id)) {
-          if (isSetupStore) {
-            createSetupStore(id, setup, options, pinia);
-          } else {
-            createOptionsStore(id, options, pinia);
-          }
-        }
-        const store = pinia._s.get(id);
-        return store;
-      }
-      useStore.$id = id;
-      return useStore;
-    }
-    let mapStoreSuffix = "Store";
-    function setMapStoreSuffix(suffix) {
-      mapStoreSuffix = suffix;
-    }
-    function mapStores(...stores) {
-      return stores.reduce((reduced, useStore) => {
-        reduced[useStore.$id + mapStoreSuffix] = function() {
-          return useStore(this.$pinia);
-        };
-        return reduced;
-      }, {});
-    }
-    function mapState(useStore, keysOrMapper) {
-      return Array.isArray(keysOrMapper) ? keysOrMapper.reduce((reduced, key) => {
-        reduced[key] = function() {
-          return useStore(this.$pinia)[key];
-        };
-        return reduced;
-      }, {}) : Object.keys(keysOrMapper).reduce((reduced, key) => {
-        reduced[key] = function() {
-          const store = useStore(this.$pinia);
-          const storeKey = keysOrMapper[key];
-          return typeof storeKey === "function" ? storeKey.call(this, store) : (
-            // @ts-expect-error: FIXME: should work?
-            store[storeKey]
-          );
-        };
-        return reduced;
-      }, {});
-    }
-    const mapGetters = mapState;
-    function mapActions(useStore, keysOrMapper) {
-      return Array.isArray(keysOrMapper) ? keysOrMapper.reduce((reduced, key) => {
-        reduced[key] = function(...args) {
-          return useStore(this.$pinia)[key](...args);
-        };
-        return reduced;
-      }, {}) : Object.keys(keysOrMapper).reduce((reduced, key) => {
-        reduced[key] = function(...args) {
-          return useStore(this.$pinia)[keysOrMapper[key]](...args);
-        };
-        return reduced;
-      }, {});
-    }
-    function mapWritableState(useStore, keysOrMapper) {
-      return Array.isArray(keysOrMapper) ? keysOrMapper.reduce((reduced, key) => {
-        reduced[key] = {
-          get() {
-            return useStore(this.$pinia)[key];
-          },
-          set(value) {
-            return useStore(this.$pinia)[key] = value;
-          }
-        };
-        return reduced;
-      }, {}) : Object.keys(keysOrMapper).reduce((reduced, key) => {
-        reduced[key] = {
-          get() {
-            return useStore(this.$pinia)[keysOrMapper[key]];
-          },
-          set(value) {
-            return useStore(this.$pinia)[keysOrMapper[key]] = value;
-          }
-        };
-        return reduced;
-      }, {});
-    }
-    function storeToRefs(store) {
-      if (vueDemi2.isVue2) {
-        return vueDemi2.toRefs(store);
-      } else {
-        const rawStore = vueDemi2.toRaw(store);
-        const refs = {};
-        for (const key in rawStore) {
-          const value = rawStore[key];
-          if (value.effect) {
-            refs[key] = // ...
-            vueDemi2.computed({
-              get: () => store[key],
-              set(value2) {
-                store[key] = value2;
-              }
-            });
-          } else if (vueDemi2.isRef(value) || vueDemi2.isReactive(value)) {
-            refs[key] = // ---
-            vueDemi2.toRef(store, key);
-          }
-        }
-        return refs;
-      }
-    }
-    const PiniaVuePlugin = function(_Vue) {
-      _Vue.mixin({
-        beforeCreate() {
-          const options = this.$options;
-          if (options.pinia) {
-            const pinia = options.pinia;
-            if (!this._provided) {
-              const provideCache = {};
-              Object.defineProperty(this, "_provided", {
-                get: () => provideCache,
-                set: (v) => Object.assign(provideCache, v)
-              });
-            }
-            this._provided[piniaSymbol] = pinia;
-            if (!this.$pinia) {
-              this.$pinia = pinia;
-            }
-            pinia._a = this;
-          } else if (!this.$pinia && options.parent && options.parent.$pinia) {
-            this.$pinia = options.parent.$pinia;
-          }
-        },
-        destroyed() {
-          delete this._pStores;
-        }
-      });
-    };
-    exports$1.PiniaVuePlugin = PiniaVuePlugin;
-    exports$1.acceptHMRUpdate = acceptHMRUpdate;
-    exports$1.createPinia = createPinia;
-    exports$1.defineStore = defineStore;
-    exports$1.disposePinia = disposePinia;
-    exports$1.getActivePinia = getActivePinia;
-    exports$1.mapActions = mapActions;
-    exports$1.mapGetters = mapGetters;
-    exports$1.mapState = mapState;
-    exports$1.mapStores = mapStores;
-    exports$1.mapWritableState = mapWritableState;
-    exports$1.setActivePinia = setActivePinia;
-    exports$1.setMapStoreSuffix = setMapStoreSuffix;
-    exports$1.shouldHydrate = shouldHydrate;
-    exports$1.skipHydrate = skipHydrate;
-    exports$1.storeToRefs = storeToRefs;
-  })(pinia_prod);
-  return pinia_prod;
-}
-var pinia_prodExports = /* @__PURE__ */ requirePinia_prod();
 function injectHead(nuxtApp) {
   const nuxt = nuxtApp || useNuxtApp();
   return nuxt.ssrContext?.head || nuxt.runWithContext(() => {
@@ -983,7 +398,7 @@ const payloadPlugin = definePayloadPlugin(() => {
   definePayloadReducer(
     "skipHydrate",
     // We need to return something truthy to be treated as a match
-    (data) => !pinia_prodExports.shouldHydrate(data) && 1
+    (data) => !shouldHydrate(data) && 1
   );
 });
 const unhead_k2P3m_ZDyjlr2mMYnoDPwavjsDN8hBlk9cFai0bbopU = /* @__PURE__ */ defineNuxtPlugin({
@@ -1013,41 +428,41 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-DRk3_niW.mjs')
+    component: () => import('./index-DeDWFB2j.mjs')
   },
   {
     name: "login",
     path: "/login",
-    component: () => import('./login-B5ZJ0coZ.mjs')
+    component: () => import('./login-BaUNPVpg.mjs')
   },
   {
     name: "compare",
     path: "/compare",
     meta: __nuxt_page_meta$3 || {},
-    component: () => import('./compare-8f2GR1EM.mjs')
+    component: () => import('./compare-D6RDHzKy.mjs')
   },
   {
     name: "register",
     path: "/register",
     meta: __nuxt_page_meta$2 || {},
-    component: () => import('./register-C4EIvUYx.mjs')
+    component: () => import('./register-C_437uiH.mjs')
   },
   {
     name: "hotels-id-book",
     path: "/hotels/:id()/book",
     meta: __nuxt_page_meta$1 || {},
-    component: () => import('./book-C4KoRfpK.mjs')
+    component: () => import('./book-CuiIF5Gs.mjs')
   },
   {
     name: "hotels-id",
     path: "/hotels/:id()",
-    component: () => import('./index-CP9C9w8M.mjs')
+    component: () => import('./index-BQqk8kJC.mjs')
   },
   {
     name: "booking-confirmation",
     path: "/booking-confirmation",
     meta: __nuxt_page_meta || {},
-    component: () => import('./booking-confirmation-Cznsy0cL.mjs')
+    component: () => import('./booking-confirmation-C64Xou3l.mjs')
   }
 ];
 const _wrapInTransition = (props, children) => {
@@ -1168,7 +583,7 @@ const globalMiddleware = [
   manifest_45route_45rule
 ];
 const namedMiddleware = {
-  auth: () => import('./auth-CsBqcd31.mjs')
+  auth: () => import('./auth-CgCSDlJD.mjs')
 };
 const plugin$1 = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:router",
@@ -1423,9 +838,9 @@ defineComponent({
 const plugin = /* @__PURE__ */ defineNuxtPlugin({
   name: "pinia",
   setup(nuxtApp) {
-    const pinia = pinia_prodExports.createPinia();
+    const pinia = createPinia();
     nuxtApp.vueApp.use(pinia);
-    pinia_prodExports.setActivePinia(pinia);
+    setActivePinia(pinia);
     {
       nuxtApp.payload.pinia = toRaw(pinia.state.value);
     }
@@ -1448,7 +863,7 @@ const plugins = [
   components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import('./default-D6pP8HMe.mjs').then((m) => m.default || m))
+  default: defineAsyncComponent(() => import('./default-DvjsY1lz.mjs').then((m) => m.default || m))
 };
 const LayoutLoader = defineComponent({
   name: "LayoutLoader",
@@ -1719,8 +1134,8 @@ const _sfc_main$1 = {
     const statusMessage = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
     const description = _error.message || _error.toString();
     const stack = void 0;
-    const _Error404 = defineAsyncComponent(() => import('./error-404-DH4i39f1.mjs'));
-    const _Error = defineAsyncComponent(() => import('./error-500-pRT6iT0o.mjs'));
+    const _Error404 = defineAsyncComponent(() => import('./error-404-BpoXDPD4.mjs'));
+    const _Error = defineAsyncComponent(() => import('./error-500-BamV4nkC.mjs'));
     const ErrorTemplate = is404 ? _Error404 : _Error;
     return (_ctx, _push, _parent, _attrs) => {
       _push(ssrRenderComponent(unref(ErrorTemplate), mergeProps({ statusCode: unref(statusCode), statusMessage: unref(statusMessage), description: unref(description), stack: unref(stack) }, _attrs), null, _parent));
@@ -1801,5 +1216,5 @@ let entry;
 }
 const entry_default = (ssrContext) => entry(ssrContext);
 
-export { useRouter as a, useNuxtApp as b, createError as c, asyncDataDefaults as d, entry_default as default, defineNuxtRouteMiddleware as e, fetchDefaults as f, useRuntimeConfig as g, nuxtLinkDefaults as h, navigateTo as n, pinia_prodExports as p, resolveRouteObject as r, useHead as u };
+export { useRouter as a, useNuxtApp as b, createError as c, asyncDataDefaults as d, entry_default as default, defineNuxtRouteMiddleware as e, fetchDefaults as f, useRuntimeConfig as g, nuxtLinkDefaults as h, navigateTo as n, resolveRouteObject as r, useHead as u };
 //# sourceMappingURL=server.mjs.map
