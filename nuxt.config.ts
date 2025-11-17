@@ -3,17 +3,46 @@ import { defineNuxtConfig } from 'nuxt/config';
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  // Manter SSR ativado (padrão)
+  ssr: true,
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
   ],
 
   nitro: {
-    preset: 'vercel'
+    preset: 'vercel',
+    experimental: {
+      wasm: true
+    },
+    rollupConfig: {
+      external: []
+    }
   },
 
-  // Atualize para a data atual
   compatibilityDate: '2025-11-17',
+
+  // Configurações específicas para resolver problemas de ESM no SSR
+  experimental: {
+    payloadExtraction: false
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: ['vue', 'vue-router', 'pinia']
+    },
+    ssr: {
+      noExternal: ['vue', 'vue-router', 'pinia', '@pinia/nuxt']
+    },
+    define: {
+      __VUE_PROD_DEVTOOLS__: false
+    }
+  },
+
+  build: {
+    transpile: ['vue', 'pinia']
+  },
 
   css: [
     '~/assets/css/tailwind.css',
