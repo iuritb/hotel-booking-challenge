@@ -12,7 +12,8 @@ export default defineNuxtConfig({
     preset: 'vercel'
   },
 
-  compatibilityDate: '2024-11-16',
+  // Atualize para a data atual
+  compatibilityDate: '2025-11-17',
 
   css: [
     '~/assets/css/tailwind.css',

@@ -3945,7 +3945,7 @@ function klona(x) {
 
 const inlineAppConfig = {
   "nuxt": {
-    "buildId": "9a452ab2-38d0-4266-858e-991045d410df"
+    "buildId": "da29f1bb-c007-414d-bf50-50b71ab2f737"
   }
 };
 

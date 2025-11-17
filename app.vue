@@ -16,7 +16,8 @@ useHead({
   ],
 });
 
-defineNuxtRouteMiddleware('auth');
+// Remova esta linha que está causando o problema:
+// defineNuxtRouteMiddleware('auth');
 </script>
 
 <style>
