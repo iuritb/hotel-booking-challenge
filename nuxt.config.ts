@@ -3,7 +3,6 @@ import { defineNuxtConfig } from 'nuxt/config';
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  // Manter SSR ativado (padrão)
   ssr: true,
 
   modules: [
@@ -13,17 +12,19 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: 'vercel',
-    experimental: {
-      wasm: true
-    },
-    rollupConfig: {
-      external: []
+    // Configuração específica para Vercel
+    vercel: {
+      functions: {
+        'server/index.mjs': {
+          maxDuration: 10
+        }
+      }
     }
   },
 
   compatibilityDate: '2025-11-17',
 
-  // Configurações específicas para resolver problemas de ESM no SSR
+  // Configurações para resolver problemas de ESM
   experimental: {
     payloadExtraction: false
   },
@@ -33,15 +34,8 @@ export default defineNuxtConfig({
       include: ['vue', 'vue-router', 'pinia']
     },
     ssr: {
-      noExternal: ['vue', 'vue-router', 'pinia', '@pinia/nuxt']
-    },
-    define: {
-      __VUE_PROD_DEVTOOLS__: false
+      noExternal: ['vue', 'vue-router', 'pinia']
     }
-  },
-
-  build: {
-    transpile: ['vue', 'pinia']
   },
 
   css: [

@@ -21,7 +21,10 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
+
+      - name: Prepare Nuxt
+        run: npx nuxt prepare
 
       - name: Build Nuxt Application
         run: yarn build
