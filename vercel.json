@@ -1,5 +1,13 @@
 {
-  "framework": "nuxtjs",
-  "buildCommand": "yarn build",
-  "outputDirectory": ".output/public"
+  "functions": {
+    "server/index.mjs": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/server/index.mjs"
+    }
+  ]
 }
